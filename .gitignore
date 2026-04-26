@@ -1,0 +1,38 @@
+# ── dbt ───────────────────────────────────────────────
+bis_analytics/target/
+bis_analytics/dbt_packages/
+bis_analytics/logs/
+logs/
+
+# ── Data files ────────────────────────────────────────
+# Generated CSVs live in data/ but are not committed.
+# Run scripts/generate_data.py to recreate them.
+data/*.csv
+data/*.parquet
+*.csv
+*.parquet
+
+# ── dbt profile (contains connection strings) ─────────
+profiles.yml
+.dbt/
+
+# ── Python ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.env
+
+# ── Session / working files ───────────────────────────
+*.jpg
+*.jpeg
+*.png
+*Thread_Log*
+*PowerShell*
+build_deck.py
+
+# ── OS ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

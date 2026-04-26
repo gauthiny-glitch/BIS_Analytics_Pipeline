@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIS Analytics Pipeline — Self-Study Guide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+<script>hljs.highlightAll();</script>
+<style>
+  :root {
+    --bg: #1e1e1e; --panel: #252526; --sidebar: #2d2d30; --border: #3e3e42;
+    --text: #d4d4d4; --muted: #858585; --accent: #007acc; --accent2: #569cd6;
+    --green: #4ec9b0; --yellow: #dcdcaa; --orange: #ce9178; --red: #f44747;
+    --tag-bg: #264f78; --tag-text: #9cdcfe; --heading: #e8e8e8;
+    --badge-ok: #1e4620; --badge-ok-text: #89d185;
+    --badge-note: #3b2f00; --badge-note-text: #dcdcaa;
+    --badge-ref: #1a2f3a; --badge-ref-text: #4fc1ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.6; display: flex; }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: 260px; min-width: 260px; background: var(--sidebar); height: 100vh;
+    position: sticky; top: 0; overflow-y: auto; padding: 20px 0;
+    border-right: 1px solid var(--border); font-size: 12px;
+  }
+  #sidebar .logo { padding: 0 16px 16px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+  #sidebar .logo h2 { color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: .5px; }
+  #sidebar .logo p { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  #sidebar .section-label { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 10px 16px 4px; }
+  #sidebar a { display: block; padding: 5px 16px; color: var(--text); text-decoration: none; border-left: 2px solid transparent; transition: all .15s; }
+  #sidebar a:hover { background: rgba(255,255,255,.05); color: #fff; border-left-color: var(--accent); }
+  #sidebar .sub { padding-left: 28px; color: var(--muted); font-size: 11px; }
+  #sidebar .sub:hover { color: var(--text); }
+
+  /* ── Main ── */
+  #main { flex: 1; max-width: 960px; padding: 40px 48px; overflow-x: hidden; }
+
+  h1 { color: var(--heading); font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+  h2 { color: var(--heading); font-size: 20px; font-weight: 700; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h3 { color: var(--accent2); font-size: 16px; font-weight: 600; margin: 28px 0 10px; }
+  h4 { color: var(--yellow); font-size: 13px; font-weight: 600; margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .5px; }
+  p { margin-bottom: 12px; color: var(--text); }
+  ul, ol { margin: 0 0 14px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--heading); }
+  code { background: #2d2d30; color: var(--orange); padding: 1px 5px; border-radius: 3px; font-family: 'Cascadia Code','Consolas',monospace; font-size: 12px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── Callouts ── */
+  .callout { border-radius: 4px; padding: 12px 16px; margin: 16px 0; font-size: 13px; border-left: 3px solid; }
+  .callout.info  { background: var(--badge-ref); border-color: var(--accent); }
+  .callout.tip   { background: var(--badge-ok); border-color: var(--green); }
+  .callout.warn  { background: var(--badge-note); border-color: var(--yellow); }
+  .callout p { margin: 0; }
+  .callout strong { color: inherit; }
+
+  /* ── Badges ── */
+  .badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: .5px; margin-right: 4px; }
+  .badge.ref  { background: var(--badge-ref); color: var(--badge-ref-text); }
+  .badge.ok   { background: var(--badge-ok); color: var(--badge-ok-text); }
+  .badge.note { background: var(--badge-note); color: var(--badge-note-text); }
+  .badge.layer{ background: #2d2d30; color: var(--tag-text); }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 12px; }
+  th { background: #2d2d30; color: var(--accent2); text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); font-weight: 600; }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  tr:hover td { background: rgba(255,255,255,.03); }
+  td code { background: transparent; color: var(--orange); padding: 0; }
+  td .type { color: var(--green); font-family: 'Cascadia Code','Consolas',monospace; }
+
+  /* ── SQL blocks ── */
+  .sql-block { margin: 16px 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .sql-block .sql-header { background: #2d2d30; padding: 6px 14px; font-size: 11px; color: var(--muted); font-family: 'Cascadia Code','Consolas',monospace; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+  .sql-block .sql-header span { color: var(--yellow); }
+  .sql-block pre { margin: 0 !important; border-radius: 0 !important; border: none !important; font-size: 12px !important; line-height: 1.55 !important; }
+  .sql-block pre code { font-family: 'Cascadia Code','Consolas','Courier New',monospace !important; }
+
+  /* ── DAG / Flow ── */
+  .dag { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 16px 0; }
+  .dag-node { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 5px 12px; font-size: 12px; font-family: 'Cascadia Code','Consolas',monospace; color: var(--tag-text); }
+  .dag-node.source  { border-color: var(--muted); color: var(--muted); }
+  .dag-node.staging { border-color: #4e9a9a; color: #4ec9b0; }
+  .dag-node.intermediate { border-color: #b5cea8; color: #b5cea8; }
+  .dag-node.fact    { border-color: var(--accent2); color: var(--accent2); }
+  .dag-node.dim     { border-color: var(--yellow); color: var(--yellow); }
+  .dag-node.mart    { border-color: var(--orange); color: var(--orange); }
+  .dag-arrow { color: var(--muted); font-size: 16px; }
+
+  /* ── Schema diagram ── */
+  .schema-grid { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 12px; margin: 20px 0; }
+  .schema-box { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
+  .schema-box h5 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .schema-box h5.fact-title { color: var(--accent2); }
+  .schema-box h5.dim-title  { color: var(--yellow); }
+  .schema-box h5.mart-title { color: var(--orange); }
+  .schema-box .col { font-size: 11px; font-family: 'Cascadia Code','Consolas',monospace; color: var(--text); padding: 2px 0; }
+  .schema-box .col .pk { color: #ffd700; }
+  .schema-box .col .fk { color: var(--orange); }
+  .schema-box .col .measure { color: var(--green); }
+
+  /* ── Step recipe ── */
+  .step { counter-increment: step; display: flex; gap: 16px; margin-bottom: 20px; }
+  .step-num { min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #fff; flex-shrink: 0; }
+  .step-body h4 { margin: 4px 0 8px; color: var(--heading); font-size: 14px; text-transform: none; letter-spacing: 0; }
+  ol.steps { list-style: none; padding: 0; counter-reset: step; }
+
+  /* ── Comparison table ── */
+  .compare th:nth-child(2) { color: var(--green); }
+  .compare th:nth-child(3) { color: var(--orange); }
+
+  /* ── Hero ── */
+  .hero { background: linear-gradient(135deg, #1a2a3a 0%, #1e1e1e 100%); border: 1px solid var(--border); border-radius: 8px; padding: 32px 40px; margin-bottom: 40px; }
+  .hero h1 { font-size: 26px; }
+  .hero .subtitle { color: var(--muted); font-size: 15px; margin-top: 6px; }
+  .hero .meta { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
+  .hero .meta-item { font-size: 12px; }
+  .hero .meta-item label { color: var(--muted); display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .8px; }
+  .hero .meta-item span  { color: var(--green); font-weight: 600; }
+
+  /* ── Glossary ── */
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .glossary-item { background: var(--panel); padding: 12px 16px; }
+  .glossary-item dt { color: var(--yellow); font-weight: 700; font-size: 13px; margin-bottom: 4px; font-family: 'Cascadia Code','Consolas',monospace; }
+  .glossary-item dd { color: var(--text); font-size: 12px; }
+
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    #main { padding: 20px; }
+    .schema-grid { grid-template-columns: 1fr; }
+    .glossary-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════ -->
+<nav id="sidebar">
+  <div class="logo">
+    <h2>BIS Analytics Pipeline</h2>
+    <p>Self-Study Guide · v1.0 · 2026</p>
+  </div>
+
+  <div class="section-label">Foundations</div>
+  <a href="#bis-overview">BIS Institutional Overview</a>
+  <a href="#tools" class="sub">Tools &amp; Prerequisites</a>
+  <a href="#compare" class="sub">Project vs Production</a>
+  <a href="#data-formats" class="sub">Data Format Flow</a>
+  <a href="#star-schema">Star Schema Design</a>
+  <a href="#sql-functions">SQL Function Reference</a>
+
+  <div class="section-label">The dbt Pipeline</div>
+  <a href="#raw-sources">Layer 0 — Raw Sources</a>
+  <a href="#stg-deals">Layer 1 — stg_deals</a>
+  <a href="#stg-fx">Layer 2 — stg_fx_rates</a>
+  <a href="#int-sdr">Layer 3 — int_deals_with_sdr</a>
+  <a href="#dim-counterparty">Layer 4 — dim_counterparty</a>
+  <a href="#dim-currency">Layer 5 — dim_currency</a>
+  <a href="#dim-product">Layer 6 — dim_product</a>
+  <a href="#dim-date">Layer 7 — dim_date</a>
+  <a href="#fct-deposits">Layer 8 — fct_currency_deposits</a>
+  <a href="#mart-maturity">Layer 9 — mart_maturity_ladder</a>
+
+  <div class="section-label">Business Context</div>
+  <a href="#metrics-rationale">Metrics Rationale</a>
+  <a href="#recipe">End-to-End Recipe</a>
+  <a href="#glossary">Lexique / Glossary</a>
+</nav>
+
+<!-- ════════════════════════════════════════
+     MAIN
+════════════════════════════════════════ -->
+<main id="main">
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <h1>BIS Analytics Pipeline</h1>
+  <p class="subtitle">A complete self-study guide to the currency deposit analytics data pipeline built on Microsoft Fabric + dbt Core</p>
+  <div class="meta">
+    <div class="meta-item"><label>Role</label><span>Senior Business Data Analyst</span></div>
+    <div class="meta-item"><label>Institution</label><span>Bank for International Settlements</span></div>
+    <div class="meta-item"><label>Stack</label><span>MS Fabric · dbt Core · Power BI</span></div>
+    <div class="meta-item"><label>Data period</label><span>Apr 2023 – Mar 2025 (FY2023-24 + FY2024-25)</span></div>
+    <div class="meta-item"><label>Models</label><span>2 staging · 1 intermediate · 5 mart · 1 analytics</span></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     1. BIS INSTITUTIONAL OVERVIEW
+════════════════════════════════════════ -->
+<section id="bis-overview">
+<h2>1. BIS Institutional Overview</h2>
+
+<p>The <strong>Bank for International Settlements (BIS)</strong> is an international organisation founded in 1930 and headquartered in Basel, Switzerland. It is owned by 63 central banks representing countries accounting for about 95% of world GDP. The BIS is often called <em>"the central bank of central banks"</em> because its primary customers are central banks and other official sector institutions.</p>
+
+<h3>What the BIS does</h3>
+<p>The BIS operates across three main areas:</p>
+<ul>
+  <li><strong>Banking services</strong> — Takes deposits from ~200 central bank customers and invests the proceeds in high-quality assets. Total assets reached <strong>SDR 431.3 billion</strong> at end-March 2025. <span class="badge ref">Annual Report p.102</span></li>
+  <li><strong>Research &amp; Statistics</strong> — Publishes global financial data (BIS statistics), coordinates regulatory standards (Basel Accords), and produces economic research via the BIS Working Papers.</li>
+  <li><strong>Meeting services</strong> — Hosts meetings of central bank governors and international financial forums (FSB, BCBS, CPMI, IAIS).</li>
+</ul>
+
+<h3>Banking Department structure</h3>
+<p>The BIS Banking Department manages the institution's financial activities. Its activities include deposit-taking, gold and foreign exchange trading services, reserve management, and asset management. <span class="badge ref">Annual Report p.101</span></p>
+
+<div class="callout info">
+  <p><strong>Why this matters for the pipeline:</strong> Every SQL model in this project exists to analyse the Banking Department's currency deposit book — the borrowed funds placed by central banks with the BIS.</p>
+</div>
+
+<h3>Unit of account — the SDR</h3>
+<p>The BIS reports all financial figures in <strong>Special Drawing Rights (SDR)</strong>. The SDR is a basket of five currencies defined by the International Monetary Fund: <strong>USD, EUR, GBP, JPY, CNY</strong>. It serves as the Bank's unit of account, or "numeraire". <span class="badge ref">Annual Report p.103</span></p>
+<p>In the pipeline, all deal amounts are converted from their original currency into SDR using a monthly exchange rate table (<code>src_fx_rates</code>). This conversion happens in <code>int_deals_with_sdr</code>.</p>
+
+<h3>Currency deposits — the core product</h3>
+<p>Currency deposits are the main liability of the BIS Banking Department. They represent funds that central banks place with the BIS, similar to how retail customers deposit money at a commercial bank. The four deposit product types are: <span class="badge ref">Annual Report p.105</span></p>
+
+<table>
+  <tr><th>Product code</th><th>Full name</th><th>Description</th></tr>
+  <tr><td><code>FIXBIS_DEP</code></td><td>FIXBIS</td><td>Fixed-rate BIS deposit. Fixed term, fixed interest rate. Most common product.</td></tr>
+  <tr><td><code>MTI_DEP</code></td><td>MTI</td><td>Medium-term instrument. Longer tenor (typically 1–10 years), fixed rate.</td></tr>
+  <tr><td><code>SIGHT_DEP</code></td><td>Sight</td><td>Overnight/on-demand deposit. No fixed maturity — redeemable at any time.</td></tr>
+  <tr><td><code>NOTICE_DEP</code></td><td>Notice</td><td>Deposit redeemable after a fixed advance notice period.</td></tr>
+</table>
+
+<h3>BIS fiscal year</h3>
+<p>The BIS financial year runs from <strong>1 April to 31 March</strong>. <span class="badge ref">Annual Report p.101</span></p>
+<ul>
+  <li>FY2023-24 = 1 April 2023 → 31 March 2024</li>
+  <li>FY2024-25 = 1 April 2024 → 31 March 2025</li>
+</ul>
+<p>This is why <code>dim_date.fiscal_year</code> uses April as the start of FQ1, not January.</p>
+
+<h3>Geographic distribution of deposits</h3>
+<p>As of FY2024-25, the geographic breakdown of currency deposit customers is: <span class="badge ref">Annual Report p.105–106, Graph 4.3</span></p>
+<table>
+  <tr><th>Region</th><th>Share</th><th>Key central banks</th></tr>
+  <tr><td>Asia-Pacific</td><td><strong>61%</strong></td><td>People's Bank of China, Bank of Japan, Reserve Bank of India</td></tr>
+  <tr><td>International institutions</td><td>9%</td><td>IMF, ECB and similar</td></tr>
+  <tr><td>Americas</td><td>9%</td><td>Federal Reserve, Banco de Brasil</td></tr>
+  <tr><td>Europe</td><td>8%</td><td>Deutsche Bundesbank, Banque de France</td></tr>
+  <tr><td>Middle East</td><td>7%</td><td>Saudi Arabia, UAE central banks</td></tr>
+  <tr><td>Africa</td><td>6%</td><td>South African Reserve Bank, Central Bank of Nigeria</td></tr>
+</table>
+
+<h3>Key financial figures (FY2024-25)</h3>
+<table>
+  <tr><th>Metric</th><th>Value</th><th>Source</th></tr>
+  <tr><td>Total assets (end-March 2025)</td><td>SDR 431.3 billion</td><td><span class="badge ref">p.102</span></td></tr>
+  <tr><td>Currency deposits all-time high</td><td>SDR 355.3 billion (30 Dec 2024)</td><td><span class="badge ref">p.103</span></td></tr>
+  <tr><td>Average currency deposits FY2024-25</td><td>SDR 314.1 billion</td><td><span class="badge ref">p.104</span></td></tr>
+  <tr><td>Number of customers</td><td>~200</td><td><span class="badge ref">p.104</span></td></tr>
+</table>
+
+<h3>Source system — Openlink Findur</h3>
+<p>The BIS booking system for Banking Department deals is <strong>Openlink Findur</strong>, a specialised treasury and trading platform used by banks and central banks worldwide. In this project, the CSV files (<code>src_deals.csv</code>, <code>src_fx_rates.csv</code>) simulate a flat file extract from Findur — the kind of file that would come out of a Findur report or scheduled export. Deal IDs follow the format <code>FIN-YYYYMM-NNNNNN</code> (FIN = Findur).</p>
+</section>
+
+<!-- ════════════════════════════════════════
+     2. TOOLS & PREREQUISITES
+════════════════════════════════════════ -->
+<section id="tools">
+<h2>2. Tools &amp; Prerequisites</h2>
+
+<h3>Software to install locally</h3>
+<table>
+  <tr><th>Tool</th><th>Version used</th><th>Purpose</th><th>Install command</th></tr>
+  <tr><td><strong>Python</strong></td><td>3.11+</td><td>dbt runs on Python; also used for data generation scripts</td><td><a href="https://python.org">python.org</a></td></tr>
+  <tr><td><strong>dbt Core</strong></td><td>1.8+</td><td>SQL transformation framework — the heart of the pipeline</td><td><code>pip install dbt-fabric</code></td></tr>
+  <tr><td><strong>dbt-fabric</strong></td><td>1.8+</td><td>dbt adapter for Microsoft Fabric SQL Analytics Endpoint</td><td>included above</td></tr>
+  <tr><td><strong>Azure CLI</strong></td><td>latest</td><td>Authenticates dbt to Fabric via Entra ID token</td><td><a href="https://aka.ms/installazurecliwindows">aka.ms/installazurecliwindows</a></td></tr>
+  <tr><td><strong>Power BI Desktop</strong></td><td>latest</td><td>Report authoring and semantic model editing</td><td>Microsoft Store or powerbi.com</td></tr>
+  <tr><td><strong>VS Code</strong></td><td>latest</td><td>SQL + YAML editing; <em>Power User + dbt Power User extensions recommended</em></td><td>code.visualstudio.com</td></tr>
+</table>
+
+<h3>Cloud services required</h3>
+<table>
+  <tr><th>Service</th><th>Purpose</th><th>Where to set up</th></tr>
+  <tr><td><strong>Microsoft Fabric workspace</strong></td><td>Hosts Lakehouses, SQL Analytics Endpoint, semantic model</td><td>app.powerbi.com → Workspaces</td></tr>
+  <tr><td><strong>Fabric Lakehouse (bis_raw)</strong></td><td>Raw data storage — Delta/Parquet files on OneLake</td><td>Fabric workspace → New → Lakehouse</td></tr>
+  <tr><td><strong>Fabric Lakehouse (bis_analytics)</strong></td><td>Transformed views (dbt output)</td><td>Same workspace</td></tr>
+  <tr><td><strong>Microsoft Entra ID tenant</strong></td><td>Authentication for dbt → Fabric connection</td><td>Already exists if using Microsoft 365</td></tr>
+</table>
+
+<div class="callout warn">
+  <p><strong>Important — Fabric SQL Analytics Endpoint limitation:</strong> The endpoint is <em>read-only for DDL</em>. You cannot run <code>CREATE TABLE</code>. dbt models must be materialised as <strong>views</strong>. If you need physical Delta tables, use a PySpark notebook instead.</p>
+</div>
+
+<h3>Python packages for data generation</h3>
+<table>
+  <tr><th>Package</th><th>Purpose</th></tr>
+  <tr><td><code>pandas</code></td><td>Build and write CSV files</td></tr>
+  <tr><td><code>numpy</code></td><td>Random number generation for synthetic amounts and rates</td></tr>
+  <tr><td><code>faker</code></td><td>Generate realistic counterparty names</td></tr>
+</table>
+
+<h3>Authentication recipe — Azure CLI to Fabric</h3>
+<p>dbt-fabric uses your Azure Entra ID token. You must re-authenticate every ~1 hour.</p>
+<div class="sql-block">
+  <div class="sql-header"><span>bash</span> — authenticate dbt to Microsoft Fabric</div>
+  <pre><code class="language-bash">az login --tenant 04f991f3-0023-4b95-ab0d-bebbdbc8df14 --allow-no-subscriptions
+# Press 1 to confirm tenant. Token is now valid for ~1 hour.
+
+# Run all mart models
+cd C:\Users\sosa_\Downloads\BIS_Project_2026\bis_analytics
+dbt run --select mart</code></pre>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════
+     3. PROJECT vs PRODUCTION
+════════════════════════════════════════ -->
+<section id="compare">
+<h2>3. Project Tools vs BIS Production Tools</h2>
+
+<table class="compare">
+  <tr><th>Layer</th><th>This project (portfolio)</th><th>BIS production (inferred)</th></tr>
+  <tr><td>Source system</td><td>Python-generated CSV (simulating Findur export)</td><td>Openlink Findur — live deal extract via scheduled job</td></tr>
+  <tr><td>Raw ingestion</td><td>PySpark notebook — CSV → Delta table in OneLake</td><td>ADF pipeline or Fabric Data Factory — Findur API / flat file → Lakehouse</td></tr>
+  <tr><td>Raw storage</td><td>MS Fabric Lakehouse (bis_raw, dbo schema, Delta format)</td><td>MS Fabric Lakehouse or Azure Data Lake Storage Gen2</td></tr>
+  <tr><td>Transformation framework</td><td>dbt Core (open source, CLI)</td><td>Likely dbt Core or dbt Cloud; or SSMS stored procedures</td></tr>
+  <tr><td>Transformation target</td><td>MS Fabric SQL Analytics Endpoint (views only)</td><td>Same — or Fabric Warehouse (supports DDL)</td></tr>
+  <tr><td>Semantic model</td><td>Power BI semantic model (Import mode, SQL Server connector)</td><td>Power BI semantic model (Direct Lake if Delta tables, Import if views)</td></tr>
+  <tr><td>Reporting</td><td>Power BI Desktop → published to workspace</td><td>Power BI Service — role-level security, certified datasets</td></tr>
+  <tr><td>Orchestration</td><td>Manual CLI (dbt run)</td><td>Fabric Data Factory pipeline with triggers, or Azure DevOps CI/CD</td></tr>
+  <tr><td>Version control</td><td>Local git</td><td>Azure DevOps or GitHub Enterprise</td></tr>
+  <tr><td>FX rates</td><td>Python-generated CSV (simulated IMF SDR rates)</td><td>Live IMF SDR feed, Bloomberg, or Refinitiv</td></tr>
+  <tr><td>Authentication</td><td>Azure CLI interactive login (az login)</td><td>Service Principal with Client Secret; Managed Identity in production</td></tr>
+</table>
+
+<div class="callout tip">
+  <p><strong>Key interview insight:</strong> The architecture is identical. The only differences are automation (manual CLI vs scheduled pipelines), data sources (synthetic CSV vs live Findur), and authentication (interactive vs service principal). The SQL and data modelling logic is production-grade.</p>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════
+     4. DATA FORMAT FLOW
+════════════════════════════════════════ -->
+<section id="data-formats">
+<h2>4. Data Format Flow</h2>
+
+<div class="dag">
+  <div class="dag-node source">src_deals.csv<br><small style="color:#555">flat file · strings</small></div>
+  <div class="dag-arrow">→</div>
+  <div class="dag-node source">PySpark notebook<br><small style="color:#555">CSV → Delta table</small></div>
+  <div class="dag-arrow">→</div>
+  <div class="dag-node staging">OneLake Delta/Parquet<br><small>bis_raw.dbo.src_deals</small></div>
+  <div class="dag-arrow">→</div>
+  <div class="dag-node fact">SQL Analytics Endpoint<br><small>dbt views (SQL)</small></div>
+  <div class="dag-arrow">→</div>
+  <div class="dag-node mart">Semantic Model<br><small>Import mode · DAX</small></div>
+  <div class="dag-arrow">→</div>
+  <div class="dag-node mart">Power BI Report<br><small>visuals · slicers</small></div>
+</div>
+
+<table>
+  <tr><th>Format</th><th>Where</th><th>Why</th></tr>
+  <tr><td><strong>CSV</strong></td><td>Python output / Findur extract</td><td>Universal exchange format. Simple strings — no types enforced.</td></tr>
+  <tr><td><strong>Delta / Parquet</strong></td><td>OneLake (bis_raw Lakehouse)</td><td>Columnar storage. Compressed. Supports ACID transactions. The native format for MS Fabric. Much faster than CSV for analytical queries.</td></tr>
+  <tr><td><strong>SQL Views</strong></td><td>SQL Analytics Endpoint</td><td>dbt materialises models as views — no data duplication. A view is just a saved SQL query. On Fabric, views are the only DDL option on the endpoint.</td></tr>
+  <tr><td><strong>Power BI dataset (Import)</strong></td><td>Semantic model / .pbix</td><td>Data is pulled from SQL views into Power BI's in-memory VertiPaq engine. Enables fast DAX queries, slicers, and measures — but requires periodic refresh for fresh data.</td></tr>
+  <tr><td><strong>Direct Lake</strong></td><td>Would replace Import mode</td><td>Reads Delta files directly from OneLake without import. Fastest option. Requires physical Delta tables — not views. Not used in this project because dbt creates views.</td></tr>
+</table>
+</section>
+
+<!-- ════════════════════════════════════════
+     5. STAR SCHEMA DESIGN
+════════════════════════════════════════ -->
+<section id="star-schema">
+<h2>5. Star Schema Design</h2>
+
+<p>The data model follows a <strong>star schema</strong>: one central fact table surrounded by dimension tables, each joined via a foreign key. This is the standard pattern for analytical data warehouses and Power BI semantic models.</p>
+
+<h3>Why not a fully normalised (3NF) database?</h3>
+<p>Normalised databases (like a banking transaction system) avoid data duplication by splitting data into many tables. Great for transactional systems. Bad for analytics because you need many complex joins to answer a simple question. Star schemas denormalise intentionally — one join per dimension, predictable query patterns, fast aggregation.</p>
+
+<h3>Why not one wide table?</h3>
+<p>You could put everything into one table (the "one big table" anti-pattern). It would work but creates problems: repeated strings everywhere (counterparty name repeated 500 times per deal), no reusable calendar logic, no single place to update a dimension attribute (e.g., a counterparty's region), and Power BI cannot optimise relationships between facts and dimensions.</p>
+
+<!-- Schema diagram -->
+<div class="schema-grid">
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    <div class="schema-box">
+      <h5 class="dim-title">dim_counterparty</h5>
+      <div class="col"><span class="pk">PK</span> cpty_code</div>
+      <div class="col">cpty_name</div>
+      <div class="col">cpty_country</div>
+      <div class="col">region</div>
+    </div>
+    <div class="schema-box">
+      <h5 class="dim-title">dim_date</h5>
+      <div class="col"><span class="pk">PK</span> date_key</div>
+      <div class="col">full_date</div>
+      <div class="col">fiscal_year</div>
+      <div class="col">fiscal_quarter</div>
+      <div class="col">month_name, year…</div>
+    </div>
+  </div>
+  <div>
+    <div class="schema-box">
+      <h5 class="fact-title">⭐ fct_currency_deposits</h5>
+      <div class="col"><span class="pk">PK</span> deal_id</div>
+      <div class="col"><span class="fk">FK</span> deal_type → dim_product</div>
+      <div class="col"><span class="fk">FK</span> cpty_code → dim_counterparty</div>
+      <div class="col"><span class="fk">FK</span> currency → dim_currency</div>
+      <div class="col"><span class="fk">FK</span> trade_date_key → dim_date</div>
+      <div class="col"><span class="fk">FK</span> value_date_key → dim_date</div>
+      <div class="col"><span class="fk">FK</span> maturity_date_key → dim_date</div>
+      <div class="col" style="margin-top:6px"><span class="measure">M</span> nominal_amount</div>
+      <div class="col"><span class="measure">M</span> nominal_amount_sdr</div>
+      <div class="col"><span class="measure">M</span> rate_pct</div>
+      <div class="col"><span class="measure">M</span> rate_decimal</div>
+      <div class="col" style="margin-top:6px">deal_status, portfolio, book…</div>
+    </div>
+    <div class="schema-box" style="margin-top:12px;">
+      <h5 class="mart-title">mart_maturity_ladder</h5>
+      <div class="col">as_of_date</div>
+      <div class="col">maturity_bucket</div>
+      <div class="col"><span class="measure">M</span> deal_count</div>
+      <div class="col"><span class="measure">M</span> total_sdr</div>
+      <div class="col" style="color:var(--muted); font-size:10px; margin-top:4px">Standalone analytics mart<br>Not joined to fact table</div>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    <div class="schema-box">
+      <h5 class="dim-title">dim_currency</h5>
+      <div class="col"><span class="pk">PK</span> currency</div>
+      <div class="col">currency_name</div>
+      <div class="col">is_sdr_basket</div>
+    </div>
+    <div class="schema-box">
+      <h5 class="dim-title">dim_product</h5>
+      <div class="col"><span class="pk">PK</span> deal_type</div>
+      <div class="col">product_name</div>
+      <div class="col">product_description</div>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:8px"><span class="badge note">PK</span> Primary Key &nbsp; <span class="badge ref">FK</span> Foreign Key &nbsp; <span class="badge ok">M</span> Measure (additive numeric)</p>
+
+<div class="callout info">
+  <p><strong>Three date foreign keys:</strong> <code>fct_currency_deposits</code> has three FK relationships to <code>dim_date</code> — for trade date, value date, and maturity date. In Power BI, only one can be the "active" relationship; the others are "inactive" and must be activated explicitly in DAX with <code>USERELATIONSHIP()</code>.</p>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════
+     6. SQL FUNCTION REFERENCE
+════════════════════════════════════════ -->
+<section id="sql-functions">
+<h2>6. SQL Function Reference</h2>
+<p>Every T-SQL function used in this project, with a plain English explanation and a concrete example.</p>
+
+<table>
+  <tr><th>Function</th><th>What it does</th><th>Used in</th><th>Example</th></tr>
+  <tr>
+    <td><code>TRY_CAST(x AS type)</code></td>
+    <td>Converts <code>x</code> to the target data type. If the conversion fails (e.g. text that is not a valid date), returns <code>NULL</code> instead of throwing an error. Safer than <code>CAST()</code>.</td>
+    <td>stg_deals, stg_fx_rates</td>
+    <td><code>TRY_CAST('2023-04-03' AS DATE)</code> → <code>2023-04-03</code></td>
+  </tr>
+  <tr>
+    <td><code>EOMONTH(date)</code></td>
+    <td>Returns the last calendar day of the month containing <code>date</code>. No arguments needed for offset = 0.</td>
+    <td>int_deals_with_sdr, mart_maturity_ladder</td>
+    <td><code>EOMONTH('2023-04-15')</code> → <code>2023-04-30</code></td>
+  </tr>
+  <tr>
+    <td><code>EOMONTH(date, n)</code></td>
+    <td>Same but offsets by <code>n</code> months first. <code>n = -1</code> means "the month before".</td>
+    <td>int_deals_with_sdr</td>
+    <td><code>EOMONTH('2023-04-15', -1)</code> → <code>2023-03-31</code></td>
+  </tr>
+  <tr>
+    <td><code>DATEADD(part, n, date)</code></td>
+    <td>Adds <code>n</code> units of <code>part</code> (day/month/year) to <code>date</code>.</td>
+    <td>dim_date, mart_maturity_ladder</td>
+    <td><code>DATEADD(month, 3, '2023-04-01')</code> → <code>2023-07-01</code></td>
+  </tr>
+  <tr>
+    <td><code>DATEDIFF(part, start, end)</code></td>
+    <td>Returns the difference between <code>end</code> and <code>start</code> in units of <code>part</code>. Note: <code>start</code> comes first. Positive if <code>end &gt; start</code>.</td>
+    <td>mart_maturity_ladder</td>
+    <td><code>DATEDIFF(day, '2025-03-31', '2025-04-07')</code> → <code>7</code></td>
+  </tr>
+  <tr>
+    <td><code>DATEFROMPARTS(y, m, d)</code></td>
+    <td>Constructs a <code>DATE</code> from integer year, month, day components. Used to decode integer date keys back into real dates.</td>
+    <td>mart_maturity_ladder</td>
+    <td><code>DATEFROMPARTS(2025, 3, 31)</code> → <code>2025-03-31</code></td>
+  </tr>
+  <tr>
+    <td><code>YEAR(date)</code> / <code>MONTH(date)</code> / <code>DAY(date)</code></td>
+    <td>Extract the year, month, or day as an integer from a date.</td>
+    <td>fct_currency_deposits, dim_date</td>
+    <td><code>YEAR('2023-04-03')</code> → <code>2023</code></td>
+  </tr>
+  <tr>
+    <td><code>DATENAME(part, date)</code></td>
+    <td>Returns the name of the specified part as a string.</td>
+    <td>dim_date</td>
+    <td><code>DATENAME(month, '2023-04-03')</code> → <code>'April'</code></td>
+  </tr>
+  <tr>
+    <td><code>DATEPART(part, date)</code></td>
+    <td>Returns an integer for the specified part. <code>DATEPART(quarter, …)</code> returns 1–4.</td>
+    <td>dim_date</td>
+    <td><code>DATEPART(quarter, '2023-07-01')</code> → <code>3</code></td>
+  </tr>
+  <tr>
+    <td><code>CONCAT(a, b, …)</code></td>
+    <td>Joins strings together. NULLs are treated as empty strings.</td>
+    <td>dim_date</td>
+    <td><code>CONCAT('FY', 2023, '-', 24)</code> → <code>'FY2023-24'</code></td>
+  </tr>
+  <tr>
+    <td><code>RIGHT(str, n)</code></td>
+    <td>Returns the rightmost <code>n</code> characters of a string.</td>
+    <td>dim_date</td>
+    <td><code>RIGHT(2024, 2)</code> → <code>'24'</code></td>
+  </tr>
+  <tr>
+    <td><code>ROW_NUMBER() OVER (ORDER BY …)</code></td>
+    <td>Window function — assigns a sequential integer to each row. Used here to generate a sequence of numbers for date spine generation.</td>
+    <td>dim_date</td>
+    <td>Produces 0, 1, 2, … 729 for the 730-day date spine</td>
+  </tr>
+  <tr>
+    <td><code>CROSS JOIN</code></td>
+    <td>Cartesian product — every row of table A is matched with every row of table B. If A has 500 rows and B has 24 rows, the result has 12,000 rows.</td>
+    <td>mart_maturity_ladder</td>
+    <td>500 active deals × 24 month-end dates = 12,000 (deal, as_of_date) pairs</td>
+  </tr>
+  <tr>
+    <td>Date key arithmetic:<br><code>y*10000 + m*100 + d</code></td>
+    <td>Converts a date to a sortable integer (YYYYMMDD). Avoids the <code>FORMAT()</code> function which is not available on Fabric SQL Analytics Endpoint.</td>
+    <td>fct_currency_deposits, dim_date</td>
+    <td><code>2023*10000 + 4*100 + 3</code> → <code>20230403</code></td>
+  </tr>
+  <tr>
+    <td>Date key decode:<br><code>key/10000</code>, <code>(key/100)%100</code>, <code>key%100</code></td>
+    <td>Extracts year, month, day from a YYYYMMDD integer using integer division and modulo.</td>
+    <td>mart_maturity_ladder</td>
+    <td><code>20250331/10000=2025</code>, <code>(20250331/100)%100=3</code>, <code>20250331%100=31</code></td>
+  </tr>
+</table>
+</section>
+
+<!-- ════════════════════════════════════════
+     7. THE DBT PIPELINE
+════════════════════════════════════════ -->
+<section>
+<h2>7. The dbt Pipeline</h2>
+
+<p>The pipeline has four logical layers. Each layer builds on the previous. dbt resolves the execution order automatically from the <code>ref()</code> and <code>source()</code> macros — this is the <strong>DAG</strong> (Directed Acyclic Graph).</p>
+
+<div class="dag">
+  <div class="dag-node source">src_deals<br>src_fx_rates</div>
+  <div class="dag-arrow">→</div>
+  <div class="dag-node staging">stg_deals<br>stg_fx_rates</div>
+  <div class="dag-arrow">→</div>
+  <div class="dag-node intermediate">int_deals_with_sdr</div>
+  <div class="dag-arrow">→</div>
+  <div class="dag-node fact">fct_currency_deposits</div>
+  <div class="dag-arrow">+</div>
+  <div class="dag-node dim">dim_* (×4)</div>
+  <div class="dag-arrow">+</div>
+  <div class="dag-node mart">mart_maturity_ladder</div>
+</div>
+
+<div class="callout info">
+  <p><strong>dbt macros:</strong> <code>{{ source('bis_raw', 'src_deals') }}</code> tells dbt this table is a declared source (external to dbt). <code>{{ ref('stg_deals') }}</code> tells dbt this model depends on <code>stg_deals</code> and should run after it. These macros are what builds the DAG.</p>
+</div>
+</section>
+
+<!-- ════════════ Layer 0 ════════════ -->
+<section id="raw-sources">
+<h3><span class="badge layer">LAYER 0</span> Raw Sources</h3>
+<p>The two source CSV files simulate extracts from Openlink Findur. They are loaded into Microsoft Fabric OneLake as Delta tables by a PySpark notebook, making them queryable via the SQL Analytics Endpoint.</p>
+
+<h4>src_deals — input table schema</h4>
+<table>
+  <tr><th>Column</th><th>Raw type</th><th>Example value</th><th>Notes</th></tr>
+  <tr><td><code>deal_id</code></td><td class="type">VARCHAR</td><td>FIN-202304-000001</td><td>Unique deal identifier</td></tr>
+  <tr><td><code>deal_type</code></td><td class="type">VARCHAR</td><td>FIXBIS_DEP</td><td>Product code from Findur</td></tr>
+  <tr><td><code>cpty_code</code></td><td class="type">VARCHAR</td><td>PBOC_01</td><td>Counterparty short code</td></tr>
+  <tr><td><code>cpty_name</code></td><td class="type">VARCHAR</td><td>People's Bank of China</td><td>Full counterparty name</td></tr>
+  <tr><td><code>cpty_country</code></td><td class="type">VARCHAR</td><td>CN</td><td>ISO 3166-1 alpha-2</td></tr>
+  <tr><td><code>trade_date</code></td><td class="type">VARCHAR</td><td>2023-04-03</td><td>String — must be cast</td></tr>
+  <tr><td><code>value_date</code></td><td class="type">VARCHAR</td><td>2023-04-05</td><td>Settlement date — string</td></tr>
+  <tr><td><code>maturity_date</code></td><td class="type">VARCHAR</td><td>2024-04-05</td><td>NULL for SIGHT_DEP</td></tr>
+  <tr><td><code>currency</code></td><td class="type">VARCHAR</td><td>USD</td><td>ISO 4217</td></tr>
+  <tr><td><code>nominal_amount</code></td><td class="type">VARCHAR</td><td>500000000.00</td><td>Full units, not millions</td></tr>
+  <tr><td><code>rate_pct</code></td><td class="type">VARCHAR</td><td>2.50</td><td>Percentage form (2.50 = 2.50%)</td></tr>
+  <tr><td><code>deal_status</code></td><td class="type">VARCHAR</td><td>VALIDATED</td><td>VALIDATED / MATURED / CANCELLED</td></tr>
+  <tr><td><code>portfolio</code></td><td class="type">VARCHAR</td><td>TRSRY-APAC</td><td>Internal BIS portfolio code</td></tr>
+  <tr><td><code>book</code></td><td class="type">VARCHAR</td><td>BK-001</td><td>Trading book identifier</td></tr>
+  <tr><td><code>created_dt</code></td><td class="type">VARCHAR</td><td>2023-04-03 09:15:00</td><td>Audit timestamp — string</td></tr>
+  <tr><td><code>last_modified_dt</code></td><td class="type">VARCHAR</td><td>2023-04-03 09:15:00</td><td>Audit timestamp — string</td></tr>
+</table>
+
+<h4>src_fx_rates — input table schema</h4>
+<table>
+  <tr><th>Column</th><th>Raw type</th><th>Example value</th><th>Notes</th></tr>
+  <tr><td><code>rate_date</code></td><td class="type">VARCHAR</td><td>2023-03-31</td><td>Always last day of month</td></tr>
+  <tr><td><code>currency_code</code></td><td class="type">VARCHAR</td><td>USD</td><td>ISO 4217</td></tr>
+  <tr><td><code>sdr_per_unit</code></td><td class="type">FLOAT</td><td>0.752140</td><td>1 USD = 0.752140 SDR</td></tr>
+</table>
+</section>
+
+<!-- ════════════ Layer 1 — stg_deals ════════════ -->
+<section id="stg-deals">
+<h3><span class="badge layer">LAYER 1</span> stg_deals</h3>
+<p><span class="badge ok">staging</span> <span class="badge note">view</span> &nbsp; File: <code>models/staging/stg_deals.sql</code></p>
+<p><strong>Purpose:</strong> Take the raw <code>src_deals</code> table and make it type-safe. Every column that arrived as a VARCHAR string is cast to its correct data type. No rows are removed, no aggregation. Staging models are purely about <em>type safety and naming consistency</em>.</p>
+
+<p><strong>Key operation — <code>TRY_CAST</code>:</strong> Instead of <code>CAST()</code>, we use <code>TRY_CAST()</code> everywhere. If a date string is malformed (e.g. <code>'not-a-date'</code>), <code>TRY_CAST</code> returns <code>NULL</code> silently. <code>CAST</code> would throw an error and halt the entire pipeline.</p>
+
+<p><strong>Key derivation — <code>rate_decimal</code>:</strong> We compute <code>rate_pct / 100</code> here (e.g. 2.50 → 0.025000). This is done once in staging so that every downstream model can use either form without recomputing.</p>
+
+<div class="sql-block">
+  <div class="sql-header"><span>stg_deals.sql</span> — staging · view · source: src_deals</div>
+  <pre><code class="language-sql">with source as (
+
+    select * from {{ source('bis_raw', 'src_deals') }}
+
+),
+
+staged as (
+
+    select
+
+        -- identifiers
+        deal_id,
+
+        -- product / instrument
+        deal_type,
+
+        -- counterparty
+        cpty_code,
+        cpty_name,
+        cpty_country,
+
+        -- dates: cast from string YYYY-MM-DD to DATE
+        try_cast(trade_date    as date) as trade_date,
+        try_cast(value_date    as date) as value_date,
+        try_cast(maturity_date as date) as maturity_date,
+
+        -- currency and amounts
+        currency,
+        try_cast(nominal_amount as decimal(20, 2))    as nominal_amount,
+
+        -- interest rate: keep percentage form AND derive decimal form
+        try_cast(rate_pct as decimal(10, 6))          as rate_pct,
+        try_cast(rate_pct as decimal(10, 6)) / 100.0  as rate_decimal,
+
+        -- deal lifecycle
+        deal_status,
+
+        -- internal classification
+        portfolio,
+        book,
+
+        -- audit timestamps: cast from string to DATETIME2
+        try_cast(created_dt       as datetime2) as created_dt,
+        try_cast(last_modified_dt as datetime2) as last_modified_dt
+
+    from source
+
+)
+
+select * from staged</code></pre>
+</div>
+
+<h4>Output schema — stg_deals</h4>
+<table>
+  <tr><th>Column</th><th>Output type</th><th>Example value</th><th>Changed from raw?</th></tr>
+  <tr><td><code>deal_id</code></td><td class="type">VARCHAR</td><td>FIN-202304-000001</td><td>No</td></tr>
+  <tr><td><code>deal_type</code></td><td class="type">VARCHAR</td><td>FIXBIS_DEP</td><td>No</td></tr>
+  <tr><td><code>trade_date</code></td><td class="type">DATE</td><td>2023-04-03</td><td>✓ VARCHAR → DATE</td></tr>
+  <tr><td><code>value_date</code></td><td class="type">DATE</td><td>2023-04-05</td><td>✓ VARCHAR → DATE</td></tr>
+  <tr><td><code>maturity_date</code></td><td class="type">DATE</td><td>2024-04-05</td><td>✓ VARCHAR → DATE (NULL for Sight)</td></tr>
+  <tr><td><code>nominal_amount</code></td><td class="type">DECIMAL(20,2)</td><td>500000000.00</td><td>✓ VARCHAR → DECIMAL</td></tr>
+  <tr><td><code>rate_pct</code></td><td class="type">DECIMAL(10,6)</td><td>2.500000</td><td>✓ VARCHAR → DECIMAL</td></tr>
+  <tr><td><code>rate_decimal</code></td><td class="type">DECIMAL(10,6)</td><td>0.025000</td><td>✓ New derived column</td></tr>
+  <tr><td><code>deal_status</code></td><td class="type">VARCHAR</td><td>VALIDATED</td><td>No</td></tr>
+  <tr><td><code>created_dt</code></td><td class="type">DATETIME2</td><td>2023-04-03 09:15:00</td><td>✓ VARCHAR → DATETIME2</td></tr>
+</table>
+</section>
+
+<!-- ════════════ Layer 2 — stg_fx_rates ════════════ -->
+<section id="stg-fx">
+<h3><span class="badge layer">LAYER 2</span> stg_fx_rates</h3>
+<p><span class="badge ok">staging</span> <span class="badge note">view</span> &nbsp; File: <code>models/staging/stg_fx_rates.sql</code></p>
+<p><strong>Purpose:</strong> Cast <code>rate_date</code> from VARCHAR to DATE. The numeric column <code>sdr_per_unit</code> is already typed correctly by PySpark when loaded. Grain: one row per (rate_date, currency_code) pair.</p>
+
+<div class="sql-block">
+  <div class="sql-header"><span>stg_fx_rates.sql</span> — staging · view · source: src_fx_rates</div>
+  <pre><code class="language-sql">with source as (
+
+    select * from {{ source('bis_raw', 'src_fx_rates') }}
+
+),
+
+staged as (
+
+    select
+
+        -- date: cast from string YYYY-MM-DD to DATE
+        try_cast(rate_date as date) as rate_date,
+
+        -- currency identifier
+        currency_code,
+
+        -- SDR rate: 1 unit of currency_code = sdr_per_unit SDR
+        sdr_per_unit
+
+    from source
+
+)
+
+select * from staged</code></pre>
+</div>
+
+<h4>Output schema — stg_fx_rates</h4>
+<table>
+  <tr><th>Column</th><th>Output type</th><th>Example value</th><th>Notes</th></tr>
+  <tr><td><code>rate_date</code></td><td class="type">DATE</td><td>2023-03-31</td><td>Month-end date of the rate</td></tr>
+  <tr><td><code>currency_code</code></td><td class="type">VARCHAR</td><td>USD</td><td>ISO 4217</td></tr>
+  <tr><td><code>sdr_per_unit</code></td><td class="type">FLOAT</td><td>0.752140</td><td>1 USD = 0.752140 SDR</td></tr>
+</table>
+</section>
+
+<!-- ════════════ Layer 3 — int_deals_with_sdr ════════════ -->
+<section id="int-sdr">
+<h3><span class="badge layer">LAYER 3</span> int_deals_with_sdr</h3>
+<p><span class="badge ok">intermediate</span> <span class="badge note">view</span> &nbsp; File: <code>models/intermediate/int_deals_with_sdr.sql</code></p>
+<p><strong>Purpose:</strong> Join the staged deals table to the staged FX rates table to compute <code>nominal_amount_sdr</code> — the deal value expressed in SDR, the BIS unit of account.</p>
+
+<h4>The join logic — explained step by step</h4>
+<p>The join has two conditions:</p>
+<ol>
+  <li><strong>Currency match</strong> — <code>deals.currency = fx_rates.currency_code</code>. We need the rate for the same currency as the deal.</li>
+  <li><strong>Date match</strong> — The rate used is the one for the <em>last day of the month before</em> the deal's value date. Formula: <code>EOMONTH(DATEADD(month, -1, value_date))</code>. Example: value date = 2023-04-15 → use rate for 2023-03-31.</li>
+</ol>
+
+<div class="callout info">
+  <p><strong>Why the month before?</strong> This simulates a common practice in treasury systems: the FX rate used for SDR conversion is the rate that was known at the <em>start</em> of the month the deal settled, not the rate on the settlement date itself. This avoids look-ahead bias and matches how BIS calculates SDR amounts.</p>
+</div>
+
+<p><strong>Why LEFT JOIN?</strong> If a deal's currency has no matching FX rate (e.g. a currency not in the rate table, or a rate date gap), the deal still appears in the output — but with <code>nominal_amount_sdr = NULL</code>. This is intentional: we want to see missing rates as NULLs for investigation, not silently drop deals.</p>
+
+<div class="sql-block">
+  <div class="sql-header"><span>int_deals_with_sdr.sql</span> — intermediate · view</div>
+  <pre><code class="language-sql">with deals as (
+
+    select * from {{ ref('stg_deals') }}
+
+),
+
+fx_rates as (
+
+    select * from {{ ref('stg_fx_rates') }}
+
+),
+
+joined as (
+
+    select
+
+        d.deal_id,
+        d.deal_type,
+        d.cpty_code,
+        d.cpty_name,
+        d.cpty_country,
+        d.trade_date,
+        d.value_date,
+        d.maturity_date,
+        d.currency,
+        d.nominal_amount,
+        d.rate_pct,
+        d.rate_decimal,
+        d.deal_status,
+        d.portfolio,
+        d.book,
+
+        -- FX rate applied (kept for auditability)
+        fx.rate_date                               as fx_rate_date,
+        fx.sdr_per_unit,
+
+        -- SDR conversion: multiply deal amount by the rate
+        d.nominal_amount * fx.sdr_per_unit         as nominal_amount_sdr,
+
+        d.created_dt,
+        d.last_modified_dt
+
+    from deals d
+
+    left join fx_rates fx
+        on  fx.currency_code = d.currency
+        and fx.rate_date = eomonth(dateadd(month, -1, d.value_date))
+
+)
+
+select * from joined</code></pre>
+</div>
+
+<h4>Output schema — int_deals_with_sdr (additions only)</h4>
+<table>
+  <tr><th>Column (new)</th><th>Type</th><th>Example</th><th>Notes</th></tr>
+  <tr><td><code>fx_rate_date</code></td><td class="type">DATE</td><td>2023-03-31</td><td>Rate date that was matched</td></tr>
+  <tr><td><code>sdr_per_unit</code></td><td class="type">FLOAT</td><td>0.752140</td><td>SDR per 1 unit of deal currency</td></tr>
+  <tr><td><code>nominal_amount_sdr</code></td><td class="type">FLOAT</td><td>376070000.00</td><td>500M USD × 0.752140 = 376.07M SDR</td></tr>
+</table>
+</section>
+
+<!-- ════════════ Layer 4 — dim_counterparty ════════════ -->
+<section id="dim-counterparty">
+<h3><span class="badge layer">LAYER 4</span> dim_counterparty</h3>
+<p><span class="badge ok">mart / dim</span> <span class="badge note">view</span> &nbsp; File: <code>models/mart/dim_counterparty.sql</code></p>
+<p><strong>Purpose:</strong> Build the counterparty dimension. Extract every unique counterparty from the deal book and add a <code>region</code> column derived from the ISO country code, using BIS's own geographic classification.</p>
+
+<h4>The region classification logic</h4>
+<p>A large <code>CASE WHEN cpty_country = 'CN' THEN 'Asia-Pacific' …</code> statement maps each ISO 3166-1 alpha-2 country code to one of six BIS regions. This matches Graph 4.3 in the BIS Annual Report. <span class="badge ref">Annual Report p.106</span></p>
+
+<div class="callout warn">
+  <p><strong>The "Other" trap:</strong> The initial version only coded ~40 countries. Countries like Turkmenistan (TM), Macau (MO), Tajikistan (TJ) and 24 more were falling into the <code>ELSE 'Other'</code> bucket. Diagnostic query identified all 27 missing codes. They were added in the correct regional blocks. Result: zero rows in "Other" in Power BI.</p>
+</div>
+
+<div class="sql-block">
+  <div class="sql-header"><span>dim_counterparty.sql</span> — mart · view (abridged — showing structure)</div>
+  <pre><code class="language-sql">with counterparties as (
+
+    select distinct
+        cpty_code,
+        cpty_name,
+        cpty_country
+    from {{ ref('int_deals_with_sdr') }}
+
+),
+
+with_region as (
+
+    select
+        cpty_code,
+        cpty_name,
+        cpty_country,
+
+        case cpty_country
+            -- Asia-Pacific (61% of deposits)
+            when 'CN' then 'Asia-Pacific'
+            when 'JP' then 'Asia-Pacific'
+            when 'IN' then 'Asia-Pacific'
+            when 'KR' then 'Asia-Pacific'
+            when 'AU' then 'Asia-Pacific'
+            -- ... 33 more Asia-Pacific codes (TM, MO, TJ, BT, KZ, KG, CK, MV,
+            --     WS, UZ, TL, SB, NP, VU, VN, LA, BN, TO, SG, HK, TH, MY,
+            --     ID, PH, BD, PK, LK, MM, KH, MN, PG, FJ, NZ) ...
+
+            -- Americas (9%)
+            when 'US' then 'Americas'
+            when 'CA' then 'Americas'
+            when 'BR' then 'Americas'
+            when 'CR' then 'Americas'  -- added: Costa Rica
+            when 'HN' then 'Americas'  -- added: Honduras
+            -- ...
+
+            -- Europe (8%)
+            when 'DE' then 'Europe'
+            when 'FR' then 'Europe'
+            when 'AZ' then 'Europe'    -- added: Azerbaijan
+            when 'AM' then 'Europe'    -- added: Armenia
+            when 'GE' then 'Europe'    -- added: Georgia
+            -- ...
+
+            -- Middle East (7%), Africa (6%), International (9%)
+            -- ...
+
+            -- International organisations
+            when 'XX' then 'International'
+            when 'EU' then 'International'  -- added: European institutions
+
+            else 'Other'  -- should be zero rows if all codes are mapped
+        end as region
+
+    from counterparties
+
+)
+
+select * from with_region</code></pre>
+</div>
+
+<h4>Output schema — dim_counterparty</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Example</th></tr>
+  <tr><td><code>cpty_code</code></td><td class="type">VARCHAR (PK)</td><td>PBOC_01</td></tr>
+  <tr><td><code>cpty_name</code></td><td class="type">VARCHAR</td><td>People's Bank of China</td></tr>
+  <tr><td><code>cpty_country</code></td><td class="type">VARCHAR</td><td>CN</td></tr>
+  <tr><td><code>region</code></td><td class="type">VARCHAR</td><td>Asia-Pacific</td></tr>
+</table>
+</section>
+
+<!-- ════════════ Layer 5 — dim_currency ════════════ -->
+<section id="dim-currency">
+<h3><span class="badge layer">LAYER 5</span> dim_currency</h3>
+<p><span class="badge ok">mart / dim</span> <span class="badge note">view</span> &nbsp; File: <code>models/mart/dim_currency.sql</code></p>
+<p><strong>Purpose:</strong> Static lookup table — one row per currency. Adds a human-readable name and an <code>is_sdr_basket</code> flag distinguishing the five IMF SDR basket currencies from the others. <span class="badge ref">IMF SDR definition</span></p>
+
+<div class="sql-block">
+  <div class="sql-header"><span>dim_currency.sql</span> — mart · view · static VALUES</div>
+  <pre><code class="language-sql">with currencies as (
+
+    select *
+    from (
+        values
+            ('USD', 'US Dollar',          'Y'),
+            ('EUR', 'Euro',               'Y'),
+            ('GBP', 'British Pound',      'Y'),
+            ('JPY', 'Japanese Yen',       'Y'),
+            ('CNY', 'Chinese Renminbi',   'Y'),
+            ('CHF', 'Swiss Franc',        'N'),
+            ('AUD', 'Australian Dollar',  'N'),
+            ('CAD', 'Canadian Dollar',    'N'),
+            ('SGD', 'Singapore Dollar',   'N'),
+            ('KRW', 'South Korean Won',   'N')
+    ) as t (currency, currency_name, is_sdr_basket)
+
+)
+
+select * from currencies</code></pre>
+</div>
+
+<h4>Output schema — dim_currency</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Example</th></tr>
+  <tr><td><code>currency</code></td><td class="type">VARCHAR (PK)</td><td>USD</td></tr>
+  <tr><td><code>currency_name</code></td><td class="type">VARCHAR</td><td>US Dollar</td></tr>
+  <tr><td><code>is_sdr_basket</code></td><td class="type">CHAR(1)</td><td>Y</td></tr>
+</table>
+</section>
+
+<!-- ════════════ Layer 6 — dim_product ════════════ -->
+<section id="dim-product">
+<h3><span class="badge layer">LAYER 6</span> dim_product</h3>
+<p><span class="badge ok">mart / dim</span> <span class="badge note">view</span> &nbsp; File: <code>models/mart/dim_product.sql</code></p>
+<p><strong>Purpose:</strong> Static lookup — one row per BIS deposit product type. Maps Findur deal type codes to human-readable names and descriptions. <span class="badge ref">Annual Report p.105</span></p>
+
+<div class="sql-block">
+  <div class="sql-header"><span>dim_product.sql</span> — mart · view · static VALUES</div>
+  <pre><code class="language-sql">with products as (
+
+    select *
+    from (
+        values
+            ('FIXBIS_DEP', 'FIXBIS',  'Fixed-rate BIS deposit. Fixed term, fixed interest rate. Most common product.'),
+            ('MTI_DEP',    'MTI',     'Medium-term instrument. Longer tenor fixed-rate deposit, typically 1-10 years.'),
+            ('SIGHT_DEP',  'Sight',   'Sight account. Overnight / on-demand deposit. No fixed maturity.'),
+            ('NOTICE_DEP', 'Notice',  'Notice account. Deposit redeemable with advance notice period.')
+    ) as t (deal_type, product_name, product_description)
+
+)
+
+select * from products</code></pre>
+</div>
+
+<h4>Output schema — dim_product</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Example</th></tr>
+  <tr><td><code>deal_type</code></td><td class="type">VARCHAR (PK)</td><td>FIXBIS_DEP</td></tr>
+  <tr><td><code>product_name</code></td><td class="type">VARCHAR</td><td>FIXBIS</td></tr>
+  <tr><td><code>product_description</code></td><td class="type">VARCHAR</td><td>Fixed-rate BIS deposit…</td></tr>
+</table>
+</section>
+
+<!-- ════════════ Layer 7 — dim_date ════════════ -->
+<section id="dim-date">
+<h3><span class="badge layer">LAYER 7</span> dim_date</h3>
+<p><span class="badge ok">mart / dim</span> <span class="badge note">view</span> &nbsp; File: <code>models/mart/dim_date.sql</code></p>
+<p><strong>Purpose:</strong> Generate a calendar dimension covering every day in the data period (1 Apr 2023 → 31 Mar 2025 = 730 days). Each row has calendar attributes <em>and</em> BIS fiscal year/quarter attributes.</p>
+
+<h4>Date spine generation trick</h4>
+<p>On Fabric SQL Analytics Endpoint, you cannot use system tables like <code>sys.all_objects</code> to generate row sequences. Instead, we build a sequence by cross-joining CTEs to multiply row counts exponentially: 2 → 4 → 16 → 256 → 65,536. We take the top 730 rows and use <code>ROW_NUMBER()</code> to assign 0–729 as offsets, then add each offset to the start date with <code>DATEADD(day, n, '2023-04-01')</code>.</p>
+
+<h4>BIS fiscal year formula</h4>
+<p>The fiscal year label is <code>FY2023-24</code>, <code>FY2024-25</code>, etc. The rule:</p>
+<ul>
+  <li>If <code>MONTH(date) &gt;= 4</code> → fiscal year starts in <code>YEAR(date)</code>, e.g. April 2023 → FY2023-24</li>
+  <li>If <code>MONTH(date) &lt; 4</code> → fiscal year started the previous year, e.g. February 2024 → FY2023-24</li>
+</ul>
+
+<div class="sql-block">
+  <div class="sql-header"><span>dim_date.sql</span> — mart · view · 730-day date spine</div>
+  <pre><code class="language-sql">-- Cross-join trick to generate 65,536 rows without system tables
+with
+n1 as (select 1 as n union all select 1),
+n2 as (select 1 as n from n1, n1 as b),       -- 4 rows
+n3 as (select 1 as n from n2, n2 as b),       -- 16 rows
+n4 as (select 1 as n from n3, n3 as b),       -- 256 rows
+n5 as (select 1 as n from n4, n4 as b),       -- 65,536 rows
+
+nums as (
+    select top 730
+        row_number() over (order by (select null)) - 1 as n
+    from n5
+),
+
+date_sequence as (
+    select dateadd(day, n, cast('2023-04-01' as date)) as full_date
+    from nums
+),
+
+with_attributes as (
+
+    select
+
+        -- Primary key: pure arithmetic — avoids FORMAT() compatibility issue
+        year(full_date) * 10000
+        + month(full_date) * 100
+        + day(full_date)                             as date_key,
+
+        full_date,
+        year(full_date)                              as year,
+        month(full_date)                             as month_num,
+        datename(month, full_date)                   as month_name,
+        datepart(quarter, full_date)                 as quarter,
+
+        -- BIS fiscal year: April to March
+        case
+            when month(full_date) >= 4
+            then concat('FY', year(full_date), '-', right(year(full_date) + 1, 2))
+            else concat('FY', year(full_date) - 1, '-', right(year(full_date), 2))
+        end                                          as fiscal_year,
+
+        -- BIS fiscal quarter: FQ1 = Apr/May/Jun, FQ2 = Jul/Aug/Sep, etc.
+        case month(full_date)
+            when 4  then 'FQ1' when 5  then 'FQ1' when 6  then 'FQ1'
+            when 7  then 'FQ2' when 8  then 'FQ2' when 9  then 'FQ2'
+            when 10 then 'FQ3' when 11 then 'FQ3' when 12 then 'FQ3'
+            when 1  then 'FQ4' when 2  then 'FQ4' when 3  then 'FQ4'
+        end                                          as fiscal_quarter
+
+    from date_sequence
+
+)
+
+select * from with_attributes</code></pre>
+</div>
+
+<h4>Output schema — dim_date</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Example</th></tr>
+  <tr><td><code>date_key</code></td><td class="type">INT (PK)</td><td>20230401</td></tr>
+  <tr><td><code>full_date</code></td><td class="type">DATE</td><td>2023-04-01</td></tr>
+  <tr><td><code>year</code></td><td class="type">INT</td><td>2023</td></tr>
+  <tr><td><code>month_num</code></td><td class="type">INT</td><td>4</td></tr>
+  <tr><td><code>month_name</code></td><td class="type">VARCHAR</td><td>April</td></tr>
+  <tr><td><code>quarter</code></td><td class="type">INT</td><td>2</td></tr>
+  <tr><td><code>fiscal_year</code></td><td class="type">VARCHAR</td><td>FY2023-24</td></tr>
+  <tr><td><code>fiscal_quarter</code></td><td class="type">VARCHAR</td><td>FQ1</td></tr>
+</table>
+</section>
+
+<!-- ════════════ Layer 8 — fct_currency_deposits ════════════ -->
+<section id="fct-deposits">
+<h3><span class="badge layer">LAYER 8</span> fct_currency_deposits</h3>
+<p><span class="badge ok">mart / fact</span> <span class="badge note">view</span> &nbsp; File: <code>models/mart/fct_currency_deposits.sql</code></p>
+<p><strong>Purpose:</strong> The central fact table of the star schema. One row per deal. Selects from <code>int_deals_with_sdr</code> and adds date keys (integer YYYYMMDD) for joining to <code>dim_date</code>.</p>
+
+<h4>Date key encoding</h4>
+<p>The formula <code>YEAR(date) * 10000 + MONTH(date) * 100 + DAY(date)</code> produces a sortable integer: e.g. 2 April 2023 → <strong>20230402</strong>. This replaces <code>FORMAT(date, 'yyyyMMdd')</code> which is not available on Fabric SQL Analytics Endpoint.</p>
+
+<h4>Degenerate dimensions</h4>
+<p>Some attributes — <code>deal_status</code>, <code>portfolio</code>, <code>book</code>, <code>fx_rate_date</code>, <code>sdr_per_unit</code> — are kept directly on the fact table rather than having their own dimension table. These are called <em>degenerate dimensions</em>. The rule: if a column has too many values for a useful grouping, or if building a separate table would add complexity without analytical value, keep it on the fact.</p>
+
+<div class="sql-block">
+  <div class="sql-header"><span>fct_currency_deposits.sql</span> — mart · fact · view</div>
+  <pre><code class="language-sql">with deals as (
+
+    select * from {{ ref('int_deals_with_sdr') }}
+
+),
+
+final as (
+
+    select
+
+        -- natural key
+        deal_id,
+
+        -- foreign keys to dimension tables
+        deal_type,             -- → dim_product.deal_type
+        cpty_code,             -- → dim_counterparty.cpty_code
+        currency,              -- → dim_currency.currency
+
+        -- date foreign keys (integer YYYYMMDD, matches dim_date.date_key)
+        year(trade_date)    * 10000 + month(trade_date)    * 100 + day(trade_date)    as trade_date_key,
+        year(value_date)    * 10000 + month(value_date)    * 100 + day(value_date)    as value_date_key,
+        year(maturity_date) * 10000 + month(maturity_date) * 100 + day(maturity_date) as maturity_date_key,
+
+        -- measures (additive numerics)
+        nominal_amount,
+        nominal_amount_sdr,
+        rate_pct,
+        rate_decimal,
+
+        -- degenerate dimensions
+        deal_status,
+        portfolio,
+        book,
+        fx_rate_date,
+        sdr_per_unit,
+
+        -- audit
+        created_dt,
+        last_modified_dt
+
+    from deals
+
+)
+
+select * from final</code></pre>
+</div>
+
+<h4>Output schema — fct_currency_deposits</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Example</th></tr>
+  <tr><td><code>deal_id</code></td><td class="type">VARCHAR (PK)</td><td>FIN-202304-000001</td></tr>
+  <tr><td><code>deal_type</code></td><td class="type">VARCHAR (FK)</td><td>FIXBIS_DEP</td></tr>
+  <tr><td><code>cpty_code</code></td><td class="type">VARCHAR (FK)</td><td>PBOC_01</td></tr>
+  <tr><td><code>currency</code></td><td class="type">VARCHAR (FK)</td><td>USD</td></tr>
+  <tr><td><code>trade_date_key</code></td><td class="type">INT (FK→dim_date)</td><td>20230403</td></tr>
+  <tr><td><code>value_date_key</code></td><td class="type">INT (FK→dim_date)</td><td>20230405</td></tr>
+  <tr><td><code>maturity_date_key</code></td><td class="type">INT (FK→dim_date)</td><td>20240405</td></tr>
+  <tr><td><code>nominal_amount</code></td><td class="type">DECIMAL(20,2)</td><td>500000000.00</td></tr>
+  <tr><td><code>nominal_amount_sdr</code></td><td class="type">FLOAT</td><td>376070000.00</td></tr>
+  <tr><td><code>rate_pct</code></td><td class="type">DECIMAL(10,6)</td><td>2.500000</td></tr>
+  <tr><td><code>rate_decimal</code></td><td class="type">DECIMAL(10,6)</td><td>0.025000</td></tr>
+  <tr><td><code>deal_status</code></td><td class="type">VARCHAR</td><td>VALIDATED</td></tr>
+  <tr><td><code>portfolio</code></td><td class="type">VARCHAR</td><td>TRSRY-APAC</td></tr>
+  <tr><td><code>fx_rate_date</code></td><td class="type">DATE</td><td>2023-03-31</td></tr>
+  <tr><td><code>sdr_per_unit</code></td><td class="type">FLOAT</td><td>0.752140</td></tr>
+</table>
+</section>
+
+<!-- ════════════ Layer 9 — mart_maturity_ladder ════════════ -->
+<section id="mart-maturity">
+<h3><span class="badge layer">LAYER 9</span> mart_maturity_ladder</h3>
+<p><span class="badge ok">mart / analytics</span> <span class="badge note">view</span> &nbsp; File: <code>models/mart/mart_maturity_ladder.sql</code></p>
+<p><strong>Purpose:</strong> A standalone analytics mart — <em>not</em> part of the star schema. It answers the question: "For any given month-end date, how much of the active deposit book matures within each time bucket?" This is the <strong>maturity ladder</strong> — a standard liquidity risk management report.</p>
+
+<h4>The problem this mart solves</h4>
+<p>A simple sum of deposits by product or region doesn't tell you <em>when</em> the money leaves. The maturity ladder shows the time distribution of future cash outflows: how much is due tomorrow (Overnight), in a week, in a month, etc. Risk managers and treasury teams use this daily.</p>
+
+<h4>Why CROSS JOIN?</h4>
+<p>We want to see the maturity profile at <strong>24 different points in time</strong> — every month-end from April 2023 to March 2025. Instead of writing 24 separate queries, we cross-join all active deals with all 24 as-of dates. Each deal × each date produces one row. Then we calculate <code>days_to_maturity</code> from that specific date to the deal's maturity date. Result: 71 rows (24 dates × up to 7 buckets). <span class="badge ok">PASS 1/1</span></p>
+
+<h4>The hybrid approach</h4>
+<p>The maturity bucket logic (which time window?) lives in dbt SQL. The choice of which date to view lives in Power BI as an <code>as_of_date</code> slicer. This is the right separation of concerns: SQL does the aggregation, Power BI does the interactivity.</p>
+
+<h4>Why is <code>SIGHT_DEP</code> always Overnight?</h4>
+<p>Sight accounts have no maturity date (<code>maturity_date</code> is NULL, so <code>days_to_maturity</code> would be NULL). They are redeemable at any time — the functional equivalent of "overnight". Rather than letting them fall through the bucket logic, we explicitly assign them to Overnight with <code>WHEN deal_type = 'SIGHT_DEP' THEN '1. Overnight'</code> as the first CASE branch.</p>
+
+<div class="sql-block">
+  <div class="sql-header"><span>mart_maturity_ladder.sql</span> — mart · analytics view · 24 as-of dates × 7 buckets</div>
+  <pre><code class="language-sql">with
+
+-- Step 1: generate 24 integers (0 to 23)
+month_nums as (
+    select 0  as n union all select 1  union all select 2  union all select 3
+    union all select 4  union all select 5  union all select 6  union all select 7
+    union all select 8  union all select 9  union all select 10 union all select 11
+    union all select 12 union all select 13 union all select 14 union all select 15
+    union all select 16 union all select 17 union all select 18 union all select 19
+    union all select 20 union all select 21 union all select 22 union all select 23
+),
+
+-- Step 2: convert each integer into a month-end date
+-- EOMONTH('2023-04-01' + n months) = Apr 2023, May 2023, ... Mar 2025
+as_of_dates as (
+    select eomonth(dateadd(month, n, cast('2023-04-01' as date))) as as_of_date
+    from month_nums
+),
+
+-- Step 3: filter to VALIDATED deals only, reconstruct maturity_date from key
+active_deals as (
+    select
+        f.deal_id,
+        f.deal_type,
+        f.nominal_amount_sdr,
+        f.maturity_date_key,
+
+        -- Decode YYYYMMDD integer back into a DATE
+        case
+            when f.maturity_date_key is null then null
+            else datefromparts(
+                f.maturity_date_key / 10000,           -- year
+                (f.maturity_date_key / 100) % 100,     -- month
+                f.maturity_date_key % 100              -- day
+            )
+        end as maturity_date
+
+    from {{ ref('fct_currency_deposits') }} f
+    where f.deal_status = 'VALIDATED'
+),
+
+-- Step 4: CROSS JOIN — every active deal × every as-of date
+-- Compute days_to_maturity from the as-of date to the deal's maturity
+crossed as (
+    select
+        d.deal_id,
+        d.deal_type,
+        d.nominal_amount_sdr,
+        d.maturity_date,
+        a.as_of_date,
+        datediff(day, a.as_of_date, d.maturity_date) as days_to_maturity
+    from active_deals d
+    cross join as_of_dates a
+),
+
+-- Step 5: assign each (deal, as_of_date) to a maturity bucket
+with_buckets as (
+    select
+        as_of_date,
+        case
+            when deal_type = 'SIGHT_DEP'   then '1. Overnight'
+            when days_to_maturity <=   7   then '2. <= 1 Week'
+            when days_to_maturity <=  30   then '3. <= 1 Month'
+            when days_to_maturity <=  90   then '4. <= 3 Months'
+            when days_to_maturity <= 180   then '5. <= 6 Months'
+            when days_to_maturity <= 365   then '6. <= 1 Year'
+            else                                '7. > 1 Year'
+        end as maturity_bucket,
+        nominal_amount_sdr
+    from crossed
+    where days_to_maturity > 0    -- exclude matured deals
+       or deal_type = 'SIGHT_DEP' -- sight accounts always included
+),
+
+-- Step 6: aggregate
+final as (
+    select
+        as_of_date,
+        maturity_bucket,
+        count(*)                as deal_count,
+        sum(nominal_amount_sdr) as total_sdr
+    from with_buckets
+    group by as_of_date, maturity_bucket
+)
+
+select * from final</code></pre>
+</div>
+
+<h4>Output schema — mart_maturity_ladder</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Example</th></tr>
+  <tr><td><code>as_of_date</code></td><td class="type">DATE</td><td>2025-03-31</td></tr>
+  <tr><td><code>maturity_bucket</code></td><td class="type">VARCHAR</td><td>2. &lt;= 1 Week</td></tr>
+  <tr><td><code>deal_count</code></td><td class="type">INT</td><td>12</td></tr>
+  <tr><td><code>total_sdr</code></td><td class="type">FLOAT</td><td>4820000000.00</td></tr>
+</table>
+
+<div class="callout tip">
+  <p><strong>Result:</strong> 71 rows (24 dates × up to 7 buckets). Not all 168 possible combinations exist — some buckets are empty for some dates. In Power BI: add <code>as_of_date</code> as a dropdown slicer. Select a month-end and the bar chart shows the maturity distribution for that date.</p>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════
+     8. BUSINESS METRICS RATIONALE
+════════════════════════════════════════ -->
+<section id="metrics-rationale">
+<h2>8. Business Metrics Rationale</h2>
+
+<h3>Why these specific marts?</h3>
+<table>
+  <tr><th>Mart / measure</th><th>Business question answered</th><th>Annual report link</th></tr>
+  <tr><td>Total SDR by region</td><td>Which central banks are our largest depositors? Where is concentration risk?</td><td><span class="badge ref">p.106 Graph 4.3</span></td></tr>
+  <tr><td>Deposits by fiscal year / product</td><td>Are deposits growing? Which products are central banks preferring?</td><td><span class="badge ref">p.105 Graph 4.2</span></td></tr>
+  <tr><td>Maturity ladder by as-of date</td><td>What are our cash outflows in the next week / month / year?</td><td><span class="badge ref">p.103-104</span></td></tr>
+  <tr><td>deal_count</td><td>How many individual deals make up the book? Is the portfolio concentrated?</td><td>Internal KRI</td></tr>
+  <tr><td>rate_pct / rate_decimal</td><td>What interest are we paying? How does our cost of funds compare across currencies?</td><td>Banking income statement</td></tr>
+</table>
+
+<h3>Why SDR and not USD?</h3>
+<p>The BIS serves central banks globally. Converting to a single national currency (e.g. USD) would introduce FX volatility into the reporting — a drop in deposit volumes could just be the USD strengthening, not actual outflows. The SDR basket dampens this volatility and is the official BIS unit of account.</p>
+
+<h3>Why star schema and not flat tables?</h3>
+<p>Power BI's VertiPaq engine is optimised for star schemas. Relationships between one fact table and multiple dimension tables allow the engine to apply filters efficiently — a region filter on <code>dim_counterparty</code> propagates to <code>fct_currency_deposits</code> through the relationship, rather than requiring a SQL WHERE clause. This enables sub-second response on millions of rows.</p>
+
+<h3>Why views and not tables?</h3>
+<p>On Fabric SQL Analytics Endpoint, we cannot create physical tables (DDL restriction). Views are also more flexible during development — you can change the SQL and re-run <code>dbt run</code> without worrying about dropping and recreating physical tables. The trade-off: no pre-computed data, so every query re-reads from the underlying Delta files. For a ~10,000 deal book this is negligible; for tens of millions of rows, you would switch to Fabric Warehouse with physical tables.</p>
+</section>
+
+<!-- ════════════════════════════════════════
+     9. END-TO-END RECIPE
+════════════════════════════════════════ -->
+<section id="recipe">
+<h2>9. End-to-End Recipe</h2>
+<p>Step-by-step to rebuild the entire pipeline from scratch on a new machine.</p>
+
+<ol class="steps">
+  <li class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h4>Install prerequisites</h4>
+      <p>Install Python 3.11+, Azure CLI, VS Code, Power BI Desktop. Then install dbt-fabric:</p>
+      <div class="sql-block"><div class="sql-header"><span>bash</span></div><pre><code class="language-bash">pip install dbt-fabric --break-system-packages</code></pre></div>
+    </div>
+  </li>
+  <li class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h4>Set up Microsoft Fabric</h4>
+      <p>In app.powerbi.com: create a workspace → create two Lakehouses: <code>bis_raw</code> and <code>bis_analytics</code>. Copy the SQL Connection String from each Lakehouse's SQL Analytics Endpoint settings.</p>
+    </div>
+  </li>
+  <li class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h4>Generate synthetic source data</h4>
+      <p>Run the Python data generation scripts in <code>BIS_Project_2026/data_generation/</code>. Output: <code>src_deals.csv</code> (~500 rows) and <code>src_fx_rates.csv</code> (~240 rows).</p>
+    </div>
+  </li>
+  <li class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <h4>Load raw data into Fabric OneLake</h4>
+      <p>Open the PySpark notebook <code>01_load_raw.ipynb</code> in Fabric. Run all cells. This reads the CSVs from your OneLake Files section and writes them as Delta tables in <code>bis_raw.dbo</code>. Verify: go to bis_raw Lakehouse → Tables → you should see <code>src_deals</code> and <code>src_fx_rates</code>.</p>
+    </div>
+  </li>
+  <li class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <h4>Configure dbt profile</h4>
+      <p>Edit <code>~/.dbt/profiles.yml</code> (or <code>C:\Users\sosa_\.dbt\profiles.yml</code>). Add the bis_analytics profile pointing at your Fabric SQL Analytics Endpoint. Authentication method: <code>az_cli</code>.</p>
+    </div>
+  </li>
+  <li class="step">
+    <div class="step-num">6</div>
+    <div class="step-body">
+      <h4>Authenticate Azure CLI</h4>
+      <div class="sql-block"><div class="sql-header"><span>bash</span></div><pre><code class="language-bash">az login --tenant 04f991f3-0023-4b95-ab0d-bebbdbc8df14 --allow-no-subscriptions
+# Press 1. Repeat every ~1 hour.</code></pre></div>
+    </div>
+  </li>
+  <li class="step">
+    <div class="step-num">7</div>
+    <div class="step-body">
+      <h4>Run dbt pipeline</h4>
+      <div class="sql-block"><div class="sql-header"><span>bash</span></div><pre><code class="language-bash">cd C:\Users\sosa_\Downloads\BIS_Project_2026\bis_analytics
+
+dbt debug           # verify connection
+dbt run             # run all 9 models
+dbt run --select mart   # run only mart layer</code></pre></div>
+      <p>Expected output: <code>PASS=9</code> (or <code>PASS=7</code> for mart only). All models materialise as views in <code>bis_analytics.dbo</code>.</p>
+    </div>
+  </li>
+  <li class="step">
+    <div class="step-num">8</div>
+    <div class="step-body">
+      <h4>Connect Power BI semantic model to Fabric</h4>
+      <p>In Power BI Desktop: Get Data → SQL Server → enter Fabric SQL Analytics Endpoint connection string → import all mart tables. Or open the existing <code>BIS_Analytics.pbix</code>. Refresh the semantic model. Verify all 9 tables loaded.</p>
+    </div>
+  </li>
+  <li class="step">
+    <div class="step-num">9</div>
+    <div class="step-body">
+      <h4>Set up relationships in semantic model</h4>
+      <p>In Power BI → Model view: verify relationships exist between <code>fct_currency_deposits</code> and each dim table. Active relationship for <code>value_date_key → dim_date.date_key</code>. Inactive relationships for trade and maturity date keys (activated via DAX <code>USERELATIONSHIP()</code> when needed).</p>
+    </div>
+  </li>
+  <li class="step">
+    <div class="step-num">10</div>
+    <div class="step-body">
+      <h4>Build / refresh Power BI report</h4>
+      <p>Open the report. Verify Page 1 (deposits by region, by FY) and Page 2 (deposits by counterparty, maturity ladder). Slicers: fiscal year, currency, as_of_date. Publish to workspace when ready.</p>
+    </div>
+  </li>
+</ol>
+</section>
+
+<!-- ════════════════════════════════════════
+     10. GLOSSARY
+════════════════════════════════════════ -->
+<section id="glossary">
+<h2>10. Lexique / Glossary</h2>
+<dl class="glossary-grid">
+
+  <div class="glossary-item">
+    <dt>SDR</dt>
+    <dd>Special Drawing Right. IMF basket currency (USD, EUR, GBP, JPY, CNY). BIS unit of account. Not a real currency — used for accounting and reporting.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>BIS</dt>
+    <dd>Bank for International Settlements. Founded 1930, Basel. "Central bank of central banks." ~200 central bank customers. Assets: SDR 431.3bn (Mar 2025).</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>dbt (data build tool)</dt>
+    <dd>Open-source SQL transformation framework. Write SELECT queries; dbt handles CREATE/DROP, dependency resolution (DAG), and documentation. Jinja-SQL templating language.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>DAG</dt>
+    <dd>Directed Acyclic Graph. In dbt, the dependency graph of all models. dbt resolves the correct execution order from ref() calls. No circular dependencies allowed.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>CTE</dt>
+    <dd>Common Table Expression. A named temporary result set defined with the WITH keyword. Makes SQL readable by breaking a long query into named steps. Not persisted.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Star schema</dt>
+    <dd>Data modelling pattern: one central fact table + multiple dimension tables joined via foreign keys. Optimised for analytical queries and Power BI VertiPaq engine.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Fact table</dt>
+    <dd>The centre of a star schema. Contains measurable, additive business events (deals, transactions). Each row = one event. Foreign keys point to dimension tables.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Dimension table</dt>
+    <dd>Descriptive context for the fact table. Contains attributes used for filtering, grouping, and labelling. E.g. counterparty name, region, currency name.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Degenerate dimension</dt>
+    <dd>A dimension attribute kept on the fact table rather than in a separate dim table. Used when the attribute has too many values for a useful grouping (e.g. deal_id, portfolio, book).</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Maturity ladder</dt>
+    <dd>A liquidity risk report showing how much of a portfolio matures in each time bucket (Overnight, ≤1W, ≤1M, etc.) at a given point in time. Used by treasury/risk teams to manage cash outflows.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>FIXBIS</dt>
+    <dd>Fixed-rate Investment at the BIS. Fixed-term, fixed-rate currency deposit. Most common product in the BIS deposit book.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>MTI</dt>
+    <dd>Medium-Term Instrument. Longer tenor (typically 1–10 years) fixed-rate deposit. Provides stable, long-term funding for the BIS.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Sight account</dt>
+    <dd>On-demand / overnight deposit. No fixed maturity. Central bank can withdraw at any time. Classified as Overnight in the maturity ladder.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Notice account</dt>
+    <dd>Deposit redeemable after a fixed advance notice period (e.g. 7, 30, 90 days). Between Sight and FIXBIS in terms of liquidity.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>MS Fabric</dt>
+    <dd>Microsoft Fabric. Unified analytics platform on Azure. Components: OneLake (storage), Lakehouse (Delta/Parquet tables), SQL Analytics Endpoint (T-SQL queries), Power BI (reports).</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>OneLake</dt>
+    <dd>Microsoft Fabric's unified storage layer. All data (Delta/Parquet files) lives in OneLake. Multiple compute engines (SQL, Spark, Power BI) read the same files.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>SQL Analytics Endpoint</dt>
+    <dd>A T-SQL query interface over a Fabric Lakehouse. Read-only for DDL (cannot CREATE TABLE). dbt uses this to materialise views and run SELECT queries.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Delta / Parquet</dt>
+    <dd>Delta Lake is a storage layer using Parquet files + a transaction log. Parquet is a columnar file format (vs CSV rows). Much faster for analytical scans. Native format of MS Fabric Lakehouses.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Direct Lake</dt>
+    <dd>Power BI mode that reads directly from Delta files in OneLake — no import/refresh needed. Requires physical Delta tables. Not available for SQL views (use Import mode instead).</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Import mode</dt>
+    <dd>Power BI loads data from the source into its in-memory VertiPaq engine. Fast for queries; requires periodic refresh to pick up new data. Used in this project (views → SQL Server connector).</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>VertiPaq</dt>
+    <dd>Power BI's in-memory columnar database engine. Stores data imported into the semantic model. Optimised for star schema queries and DAX measures.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>DAX</dt>
+    <dd>Data Analysis Expressions. Power BI's formula language for calculated measures, columns, and table functions. Analogous to Excel formulas but for analytical data models.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>Findur</dt>
+    <dd>Openlink Findur. Enterprise treasury and trading system. Used by banks and central banks for deal booking, position management, and risk reporting. The BIS source system.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>BIS fiscal year</dt>
+    <dd>April 1 to March 31. Labelled FY2023-24, FY2024-25, etc. Different from calendar year. All BIS annual report figures use this convention.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>CROSS JOIN</dt>
+    <dd>SQL operation producing the Cartesian product of two tables. Every row in table A is paired with every row in table B. Used in mart_maturity_ladder: 500 deals × 24 dates = 12,000 rows.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>TRY_CAST</dt>
+    <dd>T-SQL function. Converts a value to a target data type. Returns NULL on failure (instead of throwing an error like CAST). Essential for working with raw string data from source systems.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>EOMONTH(date, n)</dt>
+    <dd>T-SQL function returning the last day of the month, optionally offset by n months. EOMONTH('2023-04-15', -1) = '2023-03-31'. Used for FX rate date matching and as-of date generation.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>date_key</dt>
+    <dd>Integer representation of a date: YEAR × 10000 + MONTH × 100 + DAY. Example: 2023-04-03 → 20230403. Avoids FORMAT() function (unavailable on Fabric endpoint). Sortable as integer.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>ref() / source()</dt>
+    <dd>dbt Jinja macros. ref('model_name') declares a dependency on another dbt model. source('schema', 'table') declares a dependency on an external source table. These build the DAG.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>ISO 3166-1 alpha-2</dt>
+    <dd>Two-letter country codes: CN (China), JP (Japan), US (United States), etc. Used in cpty_country and the region CASE statement in dim_counterparty.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>ISO 4217</dt>
+    <dd>Three-letter currency codes: USD, EUR, GBP, JPY, CNY, CHF, etc. Used in the currency column of src_deals and src_fx_rates.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>as-of date</dt>
+    <dd>The reference date for a snapshot calculation. "As of 31 March 2025" means: given the state of the world on that date. In the maturity ladder, it is the date from which days_to_maturity is calculated.</dd>
+  </div>
+  <div class="glossary-item">
+    <dt>VALIDATED / MATURED / CANCELLED</dt>
+    <dd>BIS deal lifecycle states. VALIDATED = active, live deal. MATURED = reached maturity date and was repaid. CANCELLED = cancelled before maturity. Analytics marts filter to VALIDATED only.</dd>
+  </div>
+
+</dl>
+</section>
+
+<!-- footer -->
+<div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; text-align: center;">
+  BIS Analytics Pipeline · Self-Study Guide · Built April 2026 · For interview preparation — Senior Business Data Analyst, BIS Banking Department
+</div>
+
+</main>
+</body>
+</html>

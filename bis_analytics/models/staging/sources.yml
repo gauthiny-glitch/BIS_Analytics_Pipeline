@@ -1,0 +1,70 @@
+version: 2
+
+sources:
+  - name: bis_raw
+    description: >
+      Raw layer in MS Fabric OneLake (bis_raw Lakehouse, dbo schema).
+      Tables are loaded from Openlink Findur-simulated CSV extracts
+      via PySpark notebook 01_load_raw.
+    database: bis_raw
+    schema: dbo
+
+    tables:
+      - name: src_deals
+        description: >
+          Flat deal extract simulating an Openlink Findur position dump.
+          One row per deal. Grain: deal_id (unique).
+          All dates stored as strings (YYYY-MM-DD).
+          rate_pct stored as percentage (e.g. 2.50 = 2.50%, not 0.025).
+          nominal_amount stored as full currency units (not millions).
+        columns:
+          - name: deal_id
+            description: Unique deal identifier. Format FIN-YYYYMM-NNNNNN.
+          - name: deal_type
+            description: >
+              Findur instrument type code. Values: FIXBIS_DEP, MTI_DEP,
+              SIGHT_DEP, NOTICE_DEP. Suffix _DEP = Deposit.
+          - name: cpty_code
+            description: Counterparty short code (e.g. PBOC_01).
+          - name: cpty_name
+            description: Counterparty full name.
+          - name: cpty_country
+            description: ISO 3166-1 alpha-2 country code.
+          - name: trade_date
+            description: Date deal was booked (string YYYY-MM-DD).
+          - name: value_date
+            description: Settlement / value date (string YYYY-MM-DD).
+          - name: maturity_date
+            description: Deal maturity date (string YYYY-MM-DD). NULL for sight accounts.
+          - name: currency
+            description: ISO 4217 currency code (e.g. USD, EUR).
+          - name: nominal_amount
+            description: Deposit face value in the deal currency. Full units.
+          - name: rate_pct
+            description: Interest rate as a percentage (e.g. 2.50 = 2.50%).
+          - name: deal_status
+            description: "Deal lifecycle status. Values: VALIDATED, MATURED, CANCELLED."
+          - name: portfolio
+            description: BIS internal portfolio code (e.g. TRSRY-APAC).
+          - name: book
+            description: Trading book identifier (e.g. BK-001).
+          - name: created_dt
+            description: Timestamp when deal was created in Findur (string).
+          - name: last_modified_dt
+            description: Timestamp of last deal update in Findur (string).
+
+      - name: src_fx_rates
+        description: >
+          Monthly SDR exchange rate reference table.
+          Simulates the IMF SDR rate feed consumed by Findur and downstream analytics.
+          One row per currency per month-end date.
+          Grain: (rate_date, currency_code) — unique.
+          sdr_per_unit: SDR value of 1 unit of foreign currency
+          (e.g. 0.752 means 1 USD = 0.752 SDR).
+        columns:
+          - name: rate_date
+            description: Last calendar day of the month (string YYYY-MM-DD).
+          - name: currency_code
+            description: ISO 4217 three-letter currency code.
+          - name: sdr_per_unit
+            description: SDR per 1 unit of the foreign currency.
