@@ -382,7 +382,7 @@ dbt run --select mart</code></pre>
 <p>Normalised databases (like a banking transaction system) avoid data duplication by splitting data into many tables. Great for transactional systems. Bad for analytics because you need many complex joins to answer a simple question. Star schemas denormalise intentionally — one join per dimension, predictable query patterns, fast aggregation.</p>
 
 <h3>Why not one wide table?</h3>
-<p>You could put everything into one table (the "one big table" anti-pattern). It would work but creates problems: repeated strings everywhere (counterparty name repeated 500 times per deal), no reusable calendar logic, no single place to update a dimension attribute (e.g., a counterparty's region), and Power BI cannot optimise relationships between facts and dimensions.</p>
+<p>You could put everything into one table (the "one big table" anti-pattern). It would work but creates problems: repeated strings everywhere (counterparty name repeated 700 times per deal), no reusable calendar logic, no single place to update a dimension attribute (e.g., a counterparty's region), and Power BI cannot optimise relationships between facts and dimensions.</p>
 
 <!-- Schema diagram -->
 <div class="schema-grid">
@@ -534,9 +534,9 @@ dbt run --select mart</code></pre>
   </tr>
   <tr>
     <td><code>CROSS JOIN</code></td>
-    <td>Cartesian product — every row of table A is matched with every row of table B. If A has 500 rows and B has 24 rows, the result has 12,000 rows.</td>
+    <td>Cartesian product — every row of table A is matched with every row of table B. If A has 700 rows and B has 24 rows, the result has 16,800 rows.</td>
     <td>mart_maturity_ladder</td>
-    <td>500 active deals × 24 month-end dates = 12,000 (deal, as_of_date) pairs</td>
+    <td>700 active deals × 24 month-end dates = 16,800 (deal, as_of_date) pairs</td>
   </tr>
   <tr>
     <td>Date key arithmetic:<br><code>y*10000 + m*100 + d</code></td>
@@ -1324,7 +1324,7 @@ select * from final</code></pre>
     <div class="step-num">3</div>
     <div class="step-body">
       <h4>Generate synthetic source data</h4>
-      <p>Run the Python data generation scripts in <code>BIS_Project_2026/data_generation/</code>. Output: <code>src_deals.csv</code> (~500 rows) and <code>src_fx_rates.csv</code> (~240 rows).</p>
+      <p>Run the Python data generation scripts in <code>BIS_Project_2026/data_generation/</code>. Output: <code>src_deals.csv</code> (~700 rows) and <code>src_fx_rates.csv</code> (~240 rows).</p>
     </div>
   </li>
   <li class="step">
@@ -1490,7 +1490,7 @@ dbt run --select mart   # run only mart layer</code></pre></div>
   </div>
   <div class="glossary-item">
     <dt>CROSS JOIN</dt>
-    <dd>SQL operation producing the Cartesian product of two tables. Every row in table A is paired with every row in table B. Used in mart_maturity_ladder: 500 deals × 24 dates = 12,000 rows.</dd>
+    <dd>SQL operation producing the Cartesian product of two tables. Every row in table A is paired with every row in table B. Used in mart_maturity_ladder: 700 deals × 24 dates = 16,800 rows.</dd>
   </div>
   <div class="glossary-item">
     <dt>TRY_CAST</dt>

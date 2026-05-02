@@ -4,7 +4,7 @@ generate_data.py
 Generates synthetic source data for the BIS Analytics Pipeline project.
 
 Simulates flat file extracts from Openlink Findur (BIS deal booking system):
-  - src_deals.csv    : currency deposit deal book (~500 rows)
+  - src_deals.csv    : currency deposit deal book (~700 rows)
   - src_fx_rates.csv : monthly SDR exchange rates (Apr 2023 – Mar 2025)
 
 Output files are written to the ../data/ directory.
@@ -26,7 +26,7 @@ from dateutil.relativedelta import relativedelta
 # ── Config ────────────────────────────────────────────────────────────────────
 
 RANDOM_SEED   = 42
-N_DEALS       = 500
+N_DEALS       = 700
 DATA_DIR      = os.path.join(os.path.dirname(__file__), "..", "data")
 START_DATE    = date(2023, 4, 1)   # BIS FY start
 END_DATE      = date(2025, 3, 31)  # BIS FY end
@@ -162,7 +162,7 @@ def maturity_offset(deal_type: str) -> int | None:
         weights = [0.10, 0.15, 0.20, 0.10, 0.15, 0.10, 0.10, 0.05, 0.05]
         return random.choices(options, weights=weights)[0]
 
-def nominal_amount(deal_type: str, currency: str) -> float:
+def nominal_amount(deal_type: str, currency: str) -> int:
     """Generates a realistic deposit amount in full currency units."""
     if currency == "JPY" or currency == "KRW":
         base = random.choice([10_000_000_000, 25_000_000_000, 50_000_000_000,
@@ -174,7 +174,7 @@ def nominal_amount(deal_type: str, currency: str) -> float:
         base = random.choice([100_000_000, 250_000_000, 500_000_000,
                                750_000_000, 1_000_000_000, 2_000_000_000])
     # Add small random variation
-    return round(base * random.uniform(0.9, 1.1), 2)
+    return int(round(base * random.uniform(0.9, 1.1)))
 
 def interest_rate(deal_type: str, currency: str) -> float:
     """Returns a realistic interest rate (%) given product and currency."""

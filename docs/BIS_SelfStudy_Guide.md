@@ -249,7 +249,7 @@ The "one big table" anti-pattern creates problems: repeated strings (counterpart
 | `CONCAT(a, b, …)` | Joins strings. NULLs treated as empty strings. | dim_date | `CONCAT('FY', 2023, '-', 24)` → `'FY2023-24'` |
 | `RIGHT(str, n)` | Returns the rightmost n characters of a string. | dim_date | `RIGHT(2024, 2)` → `'24'` |
 | `ROW_NUMBER() OVER (ORDER BY …)` | Window function — assigns a sequential integer to each row. | dim_date | Generates 0,1,2…729 for date spine |
-| `CROSS JOIN` | Cartesian product — every row of A × every row of B. | mart_maturity_ladder | 500 deals × 24 dates = 12,000 rows |
+| `CROSS JOIN` | Cartesian product — every row of A × every row of B. | mart_maturity_ladder | 700 deals × 24 dates = 16,800 rows |
 | Date key: `y*10000 + m*100 + d` | Converts date to sortable YYYYMMDD integer. Avoids FORMAT() (unavailable on Fabric). | fct_currency_deposits, dim_date | `2023*10000 + 4*100 + 3` → `20230403` |
 | Date key decode: `key/10000`, `(key/100)%100`, `key%100` | Extracts year, month, day from YYYYMMDD integer. | mart_maturity_ladder | `20250331/10000=2025`, `(20250331/100)%100=3`, `20250331%100=31` |
 
@@ -939,7 +939,7 @@ In app.powerbi.com: create a workspace → create two Lakehouses: `bis_raw` and 
 
 ### Step 3 — Generate synthetic source data
 
-Run the Python data generation scripts in `BIS_Project_2026/data_generation/`. Output: `src_deals.csv` (~500 rows) and `src_fx_rates.csv` (~240 rows).
+Run the Python data generation scripts in `BIS_Project_2026/data_generation/`. Output: `src_deals.csv` (~700 rows) and `src_fx_rates.csv` (~240 rows).
 
 ### Step 4 — Load raw data into Fabric OneLake
 
@@ -1032,7 +1032,7 @@ Verify Page 1 (deposits by region, by FY) and Page 2 (deposits by counterparty, 
 
 **BIS fiscal year** — April 1 to March 31. Labelled FY2023-24, FY2024-25, etc. Different from calendar year. All BIS annual report figures use this convention.
 
-**CROSS JOIN** — SQL operation producing the Cartesian product of two tables. Every row in A × every row in B. Used in `mart_maturity_ladder`: 500 deals × 24 dates = 12,000 rows.
+**CROSS JOIN** — SQL operation producing the Cartesian product of two tables. Every row in A × every row in B. Used in `mart_maturity_ladder`: 700 deals × 24 dates = 16,800 rows.
 
 **TRY_CAST** — T-SQL function. Converts a value to a target data type. Returns NULL on failure instead of throwing an error like CAST. Essential for raw string data from source systems.
 

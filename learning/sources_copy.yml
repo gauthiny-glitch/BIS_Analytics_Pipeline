@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: bis_raw
+    description: >
+      Raw layer in MS Fabric OneLake (bis_war Lakehouse, dbo schema).
+      Tables are loaded from OpenLink Findur-simulated CSV extracts
+      via PySpark notebook 01_load_raw.
+    database: bis_raw
+    schema: dbo
+
+    

@@ -88,14 +88,14 @@ All models materialise as **views** on the Microsoft Fabric SQL Analytics Endpoi
 
 | Layer | Model | Rows (approx.) | Key Output |
 |---|---|---|---|
-| Staging | `stg_deals` | ~500 | Cleaned deal book with typed columns |
+| Staging | `stg_deals` | ~700 | Cleaned deal book with typed columns |
 | Staging | `stg_fx_rates` | ~240 | Monthly SDR/unit rates Apr 2023 → Mar 2025 |
-| Intermediate | `int_deals_with_sdr` | ~500 | Deals joined to SDR rates, `nominal_sdr` calculated |
+| Intermediate | `int_deals_with_sdr` | ~700 | Deals joined to SDR rates, `nominal_sdr` calculated |
 | Mart — Dims | `dim_counterparty` | ~57 | Central bank members with region |
 | Mart — Dims | `dim_currency` | 10 | Currency attributes, SDR basket flag |
 | Mart — Dims | `dim_date` | ~730 | Calendar spine with BIS fiscal year (Apr–Mar) |
 | Mart — Dims | `dim_product` | 4 | Deposit product types |
-| Mart — Fact | `fct_currency_deposits` | ~500 | Star-schema fact table |
+| Mart — Fact | `fct_currency_deposits` | ~700 | Star-schema fact table |
 | Mart | `mart_maturity_ladder` | ~71 | CROSS JOIN deals × 24 month-ends → 7 time buckets |
 
 ---
@@ -109,7 +109,7 @@ pip install pandas numpy python-dateutil
 python scripts/generate_data.py
 ```
 
-This writes `data/src_deals.csv` (~500 rows) and `data/src_fx_rates.csv` (~240 rows).
+This writes `data/src_deals.csv` (~700 rows) and `data/src_fx_rates.csv` (~240 rows).
 
 ### 2. Load to OneLake (Microsoft Fabric)
 
