@@ -9,7 +9,7 @@
 
   Date sequence generated using a cross-join CTE technique:
     n1 = 2 rows, n2 = 4, n3 = 16, n4 = 256, n5 = 65536
-    TOP 730 taken from n5 — no system tables or recursion required.
+    TOP 731 taken from n5 — no system tables or recursion required.
     Works on Fabric SQL Analytics Endpoint.
 
   date_key uses pure arithmetic (year * 10000 + month * 100 + day)
@@ -45,7 +45,7 @@ n4 as (select 1 as n from n3, n3 as b),
 n5 as (select 1 as n from n4, n4 as b),
 
 nums as (
-    select top 730
+    select top 731
         row_number() over (order by (select null)) - 1 as n
     from n5
 ),
