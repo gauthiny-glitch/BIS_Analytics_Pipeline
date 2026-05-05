@@ -320,23 +320,25 @@ dbt run --select mart</code></pre>
 <section id="compare">
 <h2>3. Project Tools vs BIS Production Tools</h2>
 
+<p>BIS's specific production platform is not publicly confirmed. The JD references <em>"the new data lakehouse platform"</em> and lists Iceberg, Cloudera CDS, Databricks, and Snowflake as nice-to-have familiarity. The BIS Production column below uses JD-aligned examples rather than assumptions.</p>
+
 <table class="compare">
-  <tr><th>Layer</th><th>This project (portfolio)</th><th>BIS production (inferred)</th></tr>
+  <tr><th>Layer</th><th>This project (portfolio)</th><th>BIS production (JD-aligned)</th></tr>
   <tr><td>Source system</td><td>Python-generated CSV (simulating Findur export)</td><td>Openlink Findur — live deal extract via scheduled job</td></tr>
-  <tr><td>Raw ingestion</td><td>PySpark notebook — CSV → Delta table in OneLake</td><td>ADF pipeline or Fabric Data Factory — Findur API / flat file → Lakehouse</td></tr>
-  <tr><td>Raw storage</td><td>MS Fabric Lakehouse (bis_raw, dbo schema, Delta format)</td><td>MS Fabric Lakehouse or Azure Data Lake Storage Gen2</td></tr>
-  <tr><td>Transformation framework</td><td>dbt Core (open source, CLI)</td><td>Likely dbt Core or dbt Cloud; or SSMS stored procedures</td></tr>
-  <tr><td>Transformation target</td><td>MS Fabric SQL Analytics Endpoint (views only)</td><td>Same — or Fabric Warehouse (supports DDL)</td></tr>
-  <tr><td>Semantic model</td><td>Power BI semantic model (Import mode, SQL Server connector)</td><td>Power BI semantic model (Direct Lake if Delta tables, Import if views)</td></tr>
-  <tr><td>Reporting</td><td>Power BI Desktop → published to workspace</td><td>Power BI Service — role-level security, certified datasets</td></tr>
-  <tr><td>Orchestration</td><td>Manual CLI (dbt run)</td><td>Fabric Data Factory pipeline with triggers, or Azure DevOps CI/CD</td></tr>
+  <tr><td>Raw ingestion</td><td>PySpark notebook — CSV → Delta table in OneLake</td><td>Scheduled pipeline (e.g. Spark / Cloudera CDS)</td></tr>
+  <tr><td>Raw storage</td><td>MS Fabric Lakehouse (bis_raw, dbo schema, Delta format)</td><td>Data lakehouse platform (e.g. Databricks, Snowflake, ADLS Gen2)</td></tr>
+  <tr><td>Transformation framework</td><td>dbt Core (open source, CLI)</td><td>dbt Core or dbt Cloud; or platform-native SQL</td></tr>
+  <tr><td>Transformation target</td><td>MS Fabric SQL Analytics Endpoint (views only)</td><td>Lakehouse SQL Endpoint or dedicated warehouse</td></tr>
+  <tr><td>Semantic model</td><td>Power BI semantic model (Import mode, SQL Server connector)</td><td>Power BI or Tableau — direct connection</td></tr>
+  <tr><td>Reporting</td><td>Power BI Desktop → published to workspace</td><td>BI Service — role-level security, certified datasets</td></tr>
+  <tr><td>Orchestration</td><td>Manual CLI (dbt run)</td><td>CI/CD pipeline (e.g. Azure DevOps) + job scheduler</td></tr>
   <tr><td>Version control</td><td>Local git</td><td>Azure DevOps or GitHub Enterprise</td></tr>
   <tr><td>FX rates</td><td>Python-generated CSV (simulated IMF SDR rates)</td><td>Live IMF SDR feed, Bloomberg, or Refinitiv</td></tr>
   <tr><td>Authentication</td><td>Azure CLI interactive login (az login)</td><td>Service Principal with Client Secret; Managed Identity in production</td></tr>
 </table>
 
 <div class="callout tip">
-  <p><strong>Key interview insight:</strong> The architecture is identical. The only differences are automation (manual CLI vs scheduled pipelines), data sources (synthetic CSV vs live Findur), and authentication (interactive vs service principal). The SQL and data modelling logic is production-grade.</p>
+  <p><strong>Key interview insight:</strong> The core skills demonstrated here are platform-agnostic — layered SQL models, star schema design, dbt transformation logic, and SDR-denominated metrics apply equally on Databricks, Snowflake, or any lakehouse platform. The portfolio demonstrates the architecture and business logic; the platform adapter is a configuration detail.</p>
 </div>
 </section>
 

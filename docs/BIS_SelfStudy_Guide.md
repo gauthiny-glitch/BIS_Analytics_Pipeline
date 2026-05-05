@@ -137,21 +137,23 @@ dbt run --select mart
 
 ## 3. Project Tools vs BIS Production
 
-| Layer | This project (portfolio) | BIS production (inferred) |
+BIS's specific production platform is not publicly confirmed. The JD references "the new data lakehouse platform" and lists Iceberg, Cloudera CDS, Databricks, and Snowflake as nice-to-have familiarity. The comparison below reflects that uncertainty — the BIS Production column uses JD-aligned examples rather than assumptions.
+
+| Layer | This project (portfolio) | BIS production (JD-aligned) |
 |---|---|---|
 | Source system | Python-generated CSV (simulating Findur export) | Openlink Findur — live deal extract via scheduled job |
-| Raw ingestion | PySpark notebook — CSV → Delta table in OneLake | ADF pipeline or Fabric Data Factory |
-| Raw storage | MS Fabric Lakehouse (bis_raw, dbo schema, Delta format) | MS Fabric Lakehouse or Azure Data Lake Storage Gen2 |
-| Transformation | dbt Core (open source, CLI) | Likely dbt Core or dbt Cloud; or SSMS stored procedures |
-| Transformation target | MS Fabric SQL Analytics Endpoint (views only) | Same — or Fabric Warehouse (supports DDL) |
-| Semantic model | Power BI Import mode (SQL Server connector) | Power BI Direct Lake if Delta tables, Import if views |
-| Reporting | Power BI Desktop → published to workspace | Power BI Service — role-level security, certified datasets |
-| Orchestration | Manual CLI (`dbt run`) | Fabric Data Factory pipelines, or Azure DevOps CI/CD |
+| Raw ingestion | PySpark notebook — CSV → Delta table in OneLake | Scheduled pipeline (e.g. Spark / Cloudera CDS) |
+| Raw storage | MS Fabric Lakehouse (bis_raw, dbo schema, Delta format) | Data lakehouse platform (e.g. Databricks, Snowflake, ADLS Gen2) |
+| Transformation | dbt Core (open source, CLI) | dbt Core or dbt Cloud; or platform-native SQL |
+| Transformation target | MS Fabric SQL Analytics Endpoint (views only) | Lakehouse SQL Endpoint or dedicated warehouse |
+| Semantic model | Power BI Import mode (SQL Server connector) | Power BI or Tableau — direct connection |
+| Reporting | Power BI Desktop → published to workspace | BI Service — role-level security, certified datasets |
+| Orchestration | Manual CLI (`dbt run`) | CI/CD pipeline (e.g. Azure DevOps) + job scheduler |
 | Version control | Local git | Azure DevOps or GitHub Enterprise |
 | FX rates | Python-generated CSV (simulated IMF SDR rates) | Live IMF SDR feed, Bloomberg, or Refinitiv |
 | Authentication | Azure CLI interactive login | Service Principal / Managed Identity |
 
-> **Key interview insight:** The architecture is identical. The differences are automation (manual vs scheduled), data sources (synthetic vs live Findur), and authentication (interactive vs service principal). The SQL and data modelling logic is production-grade.
+> **Key interview insight:** The core skills are platform-agnostic — layered SQL models, star schema design, dbt transformation logic, and SDR-denominated metrics apply equally on Databricks, Snowflake, or any lakehouse. The portfolio demonstrates the architecture and business logic; the platform adapter is a configuration detail.
 
 ---
 
